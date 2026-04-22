@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   // Strict validation for proxy parameters
   const paramsSchema = z.object({
-    address: z.string().min(1).max(255),
+    address: z.string().min(1).max(255).regex(/^[a-zA-Z0-9\s,.\-#/()]+$/, 'Invalid characters in address'),
     type: z.enum(['voterinfo', 'representatives']).default('voterinfo')
   });
 

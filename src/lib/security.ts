@@ -22,6 +22,13 @@ export function buildCSPHeader(): string {
     .join('; ');
 }
 
+// Add hook to enforce security on external links
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if ('target' in node && node.getAttribute('target') === '_blank') {
+    node.setAttribute('rel', 'noopener noreferrer');
+  }
+});
+
 /**
  * Sanitizes an HTML string to prevent XSS attacks.
  * @param dirty The potentially unsafe HTML string.
@@ -31,7 +38,8 @@ export function sanitizeHtml(dirty: string): string {
   return DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h3', 'h4', 'div', 'span'],
     ALLOWED_ATTR: ['href', 'target', 'rel', 'className', 'class'],
-    // Automatically add noopener/noreferrer to target="_blank"
+    // Ensure all target="_blank" links have noopener noreferrer
+    ADD_ATTR: ['target', 'rel'],
     FORBID_ATTR: ['style', 'onerror', 'onclick'],
   });
 }
