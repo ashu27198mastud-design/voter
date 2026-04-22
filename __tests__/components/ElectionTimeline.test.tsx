@@ -9,6 +9,7 @@ const mockSteps: TimelineStep[] = [
     title: 'Test Step',
     description: 'Test Description',
     isCompleted: false,
+    status: 'Not Started',
     content: '<p>Content</p>'
   }
 ];

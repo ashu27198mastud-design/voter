@@ -72,10 +72,19 @@ export const StepCard: React.FC<StepCardProps> = React.memo(({ step, index, isFi
           aria-expanded={isExpanded}
           aria-controls={`step-content-${step.id}`}
         >
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-election-blue-500 mb-1 block">
-              Step {index + 1}
-            </span>
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-election-blue-500">
+                Step {index + 1}
+              </span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                step.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                step.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
+                'bg-gray-100 text-gray-600'
+              }`}>
+                {step.status}
+              </span>
+            </div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               {step.title}
             </h2>

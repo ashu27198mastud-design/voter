@@ -12,6 +12,17 @@ export interface TimelineStep {
     isCompleted: boolean;
     content: string; // The detailed content when expanded
     actionLabel?: string;
+    status: 'Not Started' | 'In Progress' | 'Completed';
+}
+
+export type VoterType = 'first-time' | 'returning' | 'moved' | 'overseas' | 'senior';
+export type RegistrationStatus = 'registered' | 'not-registered' | 'unsure';
+export type VotingPreference = 'in-person' | 'early' | 'mail';
+
+export interface VoterContext {
+    voterType: VoterType;
+    registrationStatus: RegistrationStatus;
+    votingPreference: VotingPreference;
 }
 
 export interface ChatMessage {
