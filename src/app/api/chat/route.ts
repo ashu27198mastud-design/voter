@@ -12,10 +12,12 @@ export async function POST(req: NextRequest) {
     // 1. Validate Input
     const validated = QuerySchema.parse({ query });
 
-    // 2. Get API Key (Server-side only, no NEXT_PUBLIC_)
-    const apiKey = process.env.GEMINI_API_KEY;
+    // 2. Get API Key (Check both internal and legacy prefixed names)
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
+      return NextResponse.json({ 
+        response: "AI service is currently unavailable. Please ensure GEMINI_API_KEY is configured in your deployment environment." 
+      }, { status: 200 }); // Return as 200 to show message gracefully in chat
     }
 
     // 3. Call Gemini

@@ -73,7 +73,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       if (!inputRef.current || !window.google?.maps?.places) return;
 
       autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['(cities)'], 
+        types: ['geocode'], 
         fields: ['address_components', 'formatted_address', 'name'],
       });
 

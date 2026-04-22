@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Address is required' }, { status: 400 });
   }
 
-  const apiKey = process.env.CIVIC_API_KEY;
+  const apiKey = process.env.CIVIC_API_KEY || process.env.NEXT_PUBLIC_CIVIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'Civic API key missing' }, { status: 503 });
   }
