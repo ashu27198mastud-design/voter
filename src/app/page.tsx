@@ -182,7 +182,7 @@ export default function Home() {
           className="w-full max-w-4xl mb-12 grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <NextActionCard title={nextAction.title} action={nextAction.action} />
-          <ReadinessBanner status={readiness.status as "ready" | "needs_action" | "warning"} text={readiness.text} />
+          <ReadinessBanner status={readiness.status as "ready" | "warning" | "error"} text={readiness.text} />
         </motion.div>
       )}
 
