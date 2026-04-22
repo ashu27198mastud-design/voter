@@ -23,10 +23,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Call Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-flash-latest',
-      systemInstruction: AI_SYSTEM_PROMPT
-    });
 
     const { GLOBAL_CONFIG } = await import('@/lib/election-data');
     const countryCode = location?.countryCode || 'US';
