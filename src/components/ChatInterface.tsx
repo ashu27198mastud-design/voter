@@ -2,9 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChatMessage } from '../types';
+import { ChatMessage, UserLocation } from '../types';
 import { askElectionQuestion } from '../lib/gemini';
-import { UserLocation, QuerySchema } from '../lib/validation';
+import { QuerySchema } from '../lib/validation';
 
 interface ChatInterfaceProps {
   location: UserLocation | null;
