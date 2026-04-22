@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AI_SYSTEM_PROMPT } from '../config/aiPrompt';
-import { UserLocation } from './validation';
+import { UserLocation } from '../types';
 import { sanitizeHtml } from './security';
 
 // Initialize the Gemini API client
