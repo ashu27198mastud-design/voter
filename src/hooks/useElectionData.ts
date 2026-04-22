@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { UserLocation } from '../lib/validation';
+import { UserLocation } from '../types';
 import { fetchVoterInfo, fetchRepresentativesInfo, VoterInfoResponse, RepresentativesResponse } from '../lib/civic-info';
 
 interface UseElectionDataReturn {
