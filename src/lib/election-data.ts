@@ -8,7 +8,7 @@ export const GLOBAL_CONFIG: Record<string, { steps: string[], documents: string[
   'IN': {
     steps: ['Obtain EPIC Card', 'Check Name in Electoral Roll', 'Locate Polling Station', 'Verify Identity at Booth'],
     documents: ['Voter ID (EPIC)', 'Aadhaar Card', 'PAN Card', 'Passport'],
-    process: 'Elections in India are managed by the ECI. The 2024 General Elections are scheduled in 7 phases from April to June 2024. Voters must have their name in the electoral roll and present a valid photo ID.'
+    process: 'Elections in India are managed by the ECI. The 2024 General Elections occur in phases from April to June, with counting and results scheduled for June 4, 2024. Voters must be on the electoral roll and present a valid photo ID.'
   },
   'GB': {
     steps: ['Register to Vote', 'Choose Voting Method', 'Receive Poll Card', 'Cast Vote'],
