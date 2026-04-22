@@ -39,9 +39,9 @@ export async function askElectionQuestion(
   }
 
   try {
-    // We use gemini-1.5-flash for faster responses
+    // We use gemini-2.0-flash for faster responses
     const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
         systemInstruction: AI_SYSTEM_PROMPT
     });
     
