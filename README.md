@@ -51,10 +51,15 @@ This ensures users are not just informed — they are **guided**.
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Validation**: Zod
-- **AI**: Google Gemini API
-- **Maps**: Google Maps Places & Geocoding
-- **Data**: Google Civic Information API
-- **Testing**: Jest & Playwright
+- **AI**: Google Gemini API (controlled and scoped)
+- **APIs**:
+  - Google Civic Information API
+  - Google Maps Places & Geocoding
+- **Testing**:
+  - Jest (unit)
+  - Playwright (E2E)
+- **Deployment**:
+  - GitHub + Google Cloud Run
 
 ## 🚀 Getting Started
 
