@@ -160,28 +160,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     }
   };
 
-  // Quick predict: trigger geocode automatically after user stops typing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const rawText = inputValue.trim();
-      // Only auto-trigger if length is decent and it doesn't look like they are in the middle of typing a word
-      if (rawText.length >= 3 && window.google?.maps?.Geocoder) {
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ address: rawText }, (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-             parseAndSubmit(
-               results[0].address_components,
-               results[0].formatted_address
-             );
-          } else if (status === 'REQUEST_DENIED') {
-            console.error('Google Maps API Error: ApiNotActivatedMapError. Please enable Maps JavaScript API in Google Console.');
-          }
-        });
-      }
-    }, 800); // 800ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [inputValue, parseAndSubmit]);
+  // Removed auto-predict to allow manual selection/enter only
 
   return (
     <div className="w-full max-w-md mx-auto relative group">
