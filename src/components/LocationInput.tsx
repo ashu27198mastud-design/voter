@@ -126,6 +126,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
               results[0].address_components,
               results[0].formatted_address
             );
+          } else if (status === 'REQUEST_DENIED') {
+            setError('Google Maps API Error: Please ensure "Maps JavaScript API" is enabled in your Google Console.');
+            submitRawText(rawText);
           } else {
             // Fallback: manual parse
             submitRawText(rawText);
@@ -166,14 +169,12 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ address: rawText }, (results, status) => {
           if (status === 'OK' && results && results[0]) {
-             // We won't auto-submit here as that might be jarring, 
-             // but we can proactively resolve it or just ensure it's ready.
-             // Actually, the user asked to "show the location on screen everytime", 
-             // implying auto-submit on match.
              parseAndSubmit(
                results[0].address_components,
                results[0].formatted_address
              );
+          } else if (status === 'REQUEST_DENIED') {
+            console.error('Google Maps API Error: ApiNotActivatedMapError. Please enable Maps JavaScript API in Google Console.');
           }
         });
       }
