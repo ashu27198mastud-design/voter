@@ -1,6 +1,6 @@
 # 🗳️ VotePath AI – Election Process Education Assistant
 
-VotePath AI is a decision-driven, non-partisan election guidance system that helps users navigate the voting process. Built for the PromptWars challenge, this app provides personalized roadmaps, registration guidance, and an AI-powered educational guide.
+VotePath AI is a decision-driven, non-partisan election guidance system that helps users navigate the voting process. This app provides personalized roadmaps, registration guidance, and an AI-powered educational guide.
 
 ## ✨ Key Features
 
@@ -102,7 +102,7 @@ The app is designed to run in a stateless, serverless environment with minimal i
    npm run test:e2e  # Playwright tests
    ```
 
-## 📜 AI System Rules (PromptWars Compliance)
+## 📜 AI System Rules & Compliance
 
 The integrated AI assistant obeys 4 core mandates:
 1. **Strict Neutrality**: No political opinions or candidate endorsements.

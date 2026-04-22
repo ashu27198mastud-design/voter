@@ -1,8 +1,9 @@
 import DOMPurify from 'isomorphic-dompurify';
 
 /**
- * CSP_DIRECTIVES defines the allowed sources for various resource types.
- * strictly adheres to the PromptWars security mandate.
+ * Core security utilities for the application. This module handles input sanitization,
+ * output cleaning, and Content Security Policy (CSP) header generation.
+ * It strictly adheres to data minimization and security best practices.
  */
 export const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
