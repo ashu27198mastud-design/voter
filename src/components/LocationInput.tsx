@@ -157,6 +157,31 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     }
   };
 
+  // Quick predict: trigger geocode automatically after user stops typing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const rawText = inputValue.trim();
+      // Only auto-trigger if length is decent and it doesn't look like they are in the middle of typing a word
+      if (rawText.length >= 3 && window.google?.maps?.Geocoder) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: rawText }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+             // We won't auto-submit here as that might be jarring, 
+             // but we can proactively resolve it or just ensure it's ready.
+             // Actually, the user asked to "show the location on screen everytime", 
+             // implying auto-submit on match.
+             parseAndSubmit(
+               results[0].address_components,
+               results[0].formatted_address
+             );
+          }
+        });
+      }
+    }, 800); // 800ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [inputValue, parseAndSubmit]);
+
   return (
     <div className="w-full max-w-md mx-auto relative group">
       <label htmlFor="location-input" className="sr-only">
