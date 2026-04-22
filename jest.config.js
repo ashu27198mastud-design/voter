@@ -17,6 +17,9 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(isomorphic-dompurify|@exodus/bytes)/)',
+  ],
 };
 
 export default createJestConfig(customJestConfig);

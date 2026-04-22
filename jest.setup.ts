@@ -4,24 +4,28 @@ import '@testing-library/jest-dom';
 jest.mock('isomorphic-dompurify', () => ({
   sanitize: (content: string, options?: any) => {
     if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
-      // sanitizeText behavior: strip all tags
-      return content.replace(/<[^>]*>/g, '');
+      return content.replace(/<[^>]*>/g, '').trim();
     }
-    // sanitizeHtml behavior: strip scripts and common dangerous tags
-    return content.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '')
-                  .replace(/onerror\s*=\s*"[^"]*"/gim, '')
-                  .replace(/onerror\s*=\s*'[^']*'/gim, '')
-                  .replace(/onerror\s*=\s*[^\s>]+/gim, '');
+    // Basic simulation of DOMPurify behavior
+    let sanitized = content
+        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '')
+        .replace(/\s*on\w+="[^"]*"/gim, '')
+        .replace(/\s*href="javascript:[^"]*"/gim, '');
+
+    return sanitized;
   },
   __esModule: true,
   default: {
     sanitize: (content: string, options?: any) => {
-       if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
-          return content.replace(/<[^>]*>/g, '');
-       }
-       return content.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '');
-    },
-  },
+      if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
+        return content.replace(/<[^>]*>/g, '').trim();
+      }
+      return content
+        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '')
+        .replace(/\s*on\w+="[^"]*"/gim, '')
+        .replace(/\s*href="javascript:[^"]*"/gim, '');
+    }
+  }
 }));
 
 // Mock scrollIntoView which is not implemented in JSDOM
