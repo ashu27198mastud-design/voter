@@ -61,6 +61,15 @@ This ensures users are not just informed — they are **guided**.
 - **Deployment**:
   - GitHub + Google Cloud Run
 
+## ☁️ Deployment
+
+The application is containerized and deployed using **Google Cloud Run**, ensuring scalability and production readiness.
+
+**Workflow**:
+`GitHub` → `Build` → `Container` → `Cloud Run Deployment`
+
+The app is designed to run in a stateless, serverless environment with minimal infrastructure overhead, matching the NIST-aligned security mandate.
+
 ## 🚀 Getting Started
 
 1. **Clone the repository**:
