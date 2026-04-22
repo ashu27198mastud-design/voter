@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* Define custom theme colors extending Tailwind */
+@theme {
+  --color-election-blue-50: #E3F2FD;
+  --color-election-blue-100: #BBDEFB;
+  --color-election-blue-200: #90CAF9;
+  --color-election-blue-300: #64B5F6;
+  --color-election-blue-400: #42A5F5;
+  --color-election-blue-500: #1565C0;
+  --color-election-blue-600: #1E88E5;
+  --color-election-blue-700: #0D47A1;
+  --color-election-blue-800: #1565C0;
+  --color-election-blue-900: #0D47A1;
+  
+  --color-election-amber-50: #FFF8E1;
+  --color-election-amber-100: #FFECB3;
+  --color-election-amber-200: #FFE082;
+  --color-election-amber-300: #FFD54F;
+  --color-election-amber-400: #FFA726;
+  --color-election-amber-500: #FF9800;
+  --color-election-amber-600: #FB8C00;
+  --color-election-amber-700: #F57C00;
+  --color-election-amber-800: #EF6C00;
+  --color-election-amber-900: #E65100;
+}
+
+@layer base {
+  :root {
+    --background: #FAFAFA; /* Light mode 13.5:1 contrast base */
+    --foreground: #212121;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Roboto', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Accessibility: Ensure all focusable elements have clear indicators */
+  *:focus-visible {
+    outline: 2px solid var(--color-election-blue-500);
+    outline-offset: 2px;
+  }
+
+  /* Accessibility: Respect user preference for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Google Maps Autocomplete Overrides */
+.pac-container {
+  background-color: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 40px rgba(21, 101, 192, 0.12) !important;
+  border: 1px solid var(--color-election-blue-50) !important;
+  margin-top: 8px !important;
+  font-family: 'Roboto', system-ui, sans-serif !important;
+  z-index: 9999 !important;
+  padding: 8px 0 !important;
+}
+
+.pac-item {
+  padding: 12px 20px !important;
+  font-size: 16px !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  border-top: 1px solid #f1f5f9 !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+.pac-item:hover, .pac-item-selected {
+  background-color: var(--color-election-blue-50) !important;
+}
+
+.pac-item-query {
+  font-size: 16px !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  margin-right: 4px !important;
+}
+
+.pac-matched {
+  font-weight: 700 !important;
+  color: var(--color-election-blue-600) !important;
+}
+
+.pac-icon {
+  margin-right: 12px !important;
+  margin-top: 0 !important;
+}
