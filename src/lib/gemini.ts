@@ -17,7 +17,7 @@ const responseCache = new Map<string, { response: string, timestamp: number }>()
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
 
 /**
- * Asks the Gemini model an election-related question, adhering to system rules.
+ * Asks the VotePath Assistant (via server-side proxy) an election-related question.
  * 
  * @param query The user's question.
  * @param location The user's validated location.
@@ -34,42 +34,26 @@ export async function askElectionQuestion(
       return cached.response;
   }
 
-  if (!apiKey) {
-      return sanitizeHtml("AI service is currently unavailable. Please check the API key configuration.");
-  }
-
   try {
-    // We use gemini-flash-latest for faster responses
-    const model = genAI.getGenerativeModel({ 
-        model: 'gemini-flash-latest',
-        systemInstruction: AI_SYSTEM_PROMPT
+    const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, location })
     });
-    
-    const locationContext = location 
-        ? `User location: ${location.city}, ${location.state}, ${location.country}. Format answers in plain language or structured list.`
-        : "User location: Unknown. Format answers in plain language or structured list.";
 
-    const prompt = `
-      ${locationContext}
-      User question: ${query}
-      
-      Provide a factual, nonpartisan answer about the election PROCESS only (registration, deadlines, ID requirements).
-      DO NOT discuss candidates, parties, or political positions.
-      Keep response under 300 words.
-    `;
-    
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    
-    // Sanitize before returning (RULE 3 - OUTPUT SANITIZATION)
-    const safeResponse = sanitizeHtml(responseText);
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const safeResponse = data.response;
 
     // Cache the result
     responseCache.set(cacheKey, { response: safeResponse, timestamp: Date.now() });
     
     return safeResponse;
   } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    return sanitizeHtml("I encountered an error while trying to answer your question. Please try again later.");
+    console.error("Error calling Chat API:", error);
+    return "I encountered an error while trying to answer your question. Please try again later.";
   }
 }

@@ -7,7 +7,7 @@ import DOMPurify from 'isomorphic-dompurify';
  */
 export const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://maps.googleapis.com'],
+  'script-src': ["'self'", "'unsafe-inline'", 'https://maps.googleapis.com'],
   'connect-src': ["'self'", 'https://generativelanguage.googleapis.com', 'https://maps.googleapis.com', 'https://www.googleapis.com'],
   'img-src': ["'self'", 'data:', 'https:'],
   'frame-ancestors': ["'none'"],

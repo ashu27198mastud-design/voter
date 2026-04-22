@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com; connect-src 'self' https://generativelanguage.googleapis.com https://maps.googleapis.com https://www.googleapis.com; img-src 'self' data: https:; frame-ancestors 'none';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; connect-src 'self' https://generativelanguage.googleapis.com https://maps.googleapis.com https://www.googleapis.com; img-src 'self' data: https:; frame-ancestors 'none';",
           },
           {
             key: 'X-Frame-Options',

@@ -58,25 +58,12 @@ export interface RepresentativesResponse {
  * @returns VoterInfoResponse or null if no data is found.
  */
 export async function fetchVoterInfo(address: string): Promise<VoterInfoResponse | null> {
-  const apiKey = process.env.NEXT_PUBLIC_CIVIC_API_KEY;
-  if (!apiKey) {
-    console.warn('Civic API key is not defined.');
-    return null;
-  }
-
-  const encodedAddress = encodeURIComponent(address);
-  const url = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${encodedAddress}&key=${apiKey}`;
+  const url = `/api/civic?address=${encodeURIComponent(address)}&type=voterinfo`;
 
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      // Gracefully return null for any error (400 = no election, 403 = quota, etc.)
-      console.warn(`Voter info not available (${response.status}): ${response.statusText}`);
-      return null;
-    }
-
-    const data = await response.json();
-    return data as VoterInfoResponse;
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     console.error('Error fetching voter info:', error);
     return null;
@@ -91,25 +78,12 @@ export async function fetchVoterInfo(address: string): Promise<VoterInfoResponse
  * @returns RepresentativesResponse or null if no data is found.
  */
 export async function fetchRepresentativesInfo(address: string): Promise<RepresentativesResponse | null> {
-  const apiKey = process.env.NEXT_PUBLIC_CIVIC_API_KEY;
-  if (!apiKey) {
-    console.warn('Civic API key is not defined.');
-    return null;
-  }
-
-  const encodedAddress = encodeURIComponent(address);
-  const url = `https://www.googleapis.com/civicinfo/v2/representatives?address=${encodedAddress}&key=${apiKey}`;
+  const url = `/api/civic?address=${encodeURIComponent(address)}&type=representatives`;
 
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      // Gracefully return null for any error
-      console.warn(`Representatives info not available (${response.status}): ${response.statusText}`);
-      return null;
-    }
-
-    const data = await response.json();
-    return data as RepresentativesResponse;
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     console.error('Error fetching representatives info:', error);
     return null;
