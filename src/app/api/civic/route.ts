@@ -26,9 +26,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Civic API error' }, { status: response.status });
     }
     const data = await response.json();
+    
+    const { logger } = await import('@/lib/logger');
+    logger.info('Civic API Fetch Successful', { address, type });
+
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Civic Proxy Error:', error);
+  } catch (error: any) {
+    const { logger } = await import('@/lib/logger');
+    logger.error('Civic API Proxy Error', { error: error.message });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

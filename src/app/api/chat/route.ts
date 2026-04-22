@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AI_SYSTEM_PROMPT } from '@/config/aiPrompt';
 import { QuerySchema } from '@/lib/validation';
 import { sanitizeHtml } from '@/lib/security';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +43,12 @@ export async function POST(req: NextRequest) {
          - Required Docs: ${regionalData.documents.join(', ')}`
       : "";
 
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', month: 'long', day: 'numeric' 
+    });
+
     const prompt = `
+      Current Date: ${currentDate}
       ${locationContext}
       ${regionalContext}
       User question: ${validated.query}
@@ -52,11 +58,13 @@ export async function POST(req: NextRequest) {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
+    logger.info('AI Chat successful', { query: validated.query });
+
     // 4. Sanitize and Return
     return NextResponse.json({ response: sanitizeHtml(responseText) });
 
   } catch (error: any) {
-    console.error('API Chat Error:', error);
+    logger.error('API Chat Error', { error: error.message, stack: error.stack });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
