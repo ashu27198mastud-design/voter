@@ -1,4 +1,4 @@
-import { VoterInfoResponse } from '../lib/civic-info';
+import { VoterInfoResponse } from '@/services/civic';
 import { TimelineStep, VoterContext } from '../types';
 import { GLOBAL_CONFIG } from '../constants/regions';
 
