@@ -1,4 +1,4 @@
-import { VoterInfoResponse } from '../utils/civicApi';
+import { VoterInfoResponse } from './civic-info';
 import { TimelineStep } from '../types';
 
 /**

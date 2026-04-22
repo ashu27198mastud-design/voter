@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { UserLocation } from '../lib/validation';
-import { fetchVoterInfo, fetchRepresentativesInfo, VoterInfoResponse, RepresentativesResponse } from '../utils/civicApi';
+import { fetchVoterInfo, fetchRepresentativesInfo, VoterInfoResponse, RepresentativesResponse } from '../lib/civic-info';
 
 interface UseElectionDataReturn {
   location: UserLocation | null;
