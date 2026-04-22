@@ -18,18 +18,6 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
 
-  // Debounce effect for auto-search
-  useEffect(() => {
-    if (inputValue.trim().length > 3 && !/^\d+$/.test(inputValue)) {
-      const timer = setTimeout(() => {
-        // Only auto-trigger if it looks like a city/state name (not just random letters)
-        if (inputValue.includes(',') || inputValue.length > 5) {
-            submitRawText(inputValue);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [inputValue]);
 
   const parseAndSubmit = React.useCallback(
     (
@@ -62,7 +50,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         });
         onLocationSubmit(validated);
         setError(null);
-        setInputValue('');
+        if (formattedAddress) {
+          setInputValue(formattedAddress);
+        }
       } catch {
         setError('Invalid location. Please try a different search.');
       }
@@ -83,7 +73,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       if (!inputRef.current || !window.google?.maps?.places) return;
 
       autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['geocode'],  // broader: includes cities, postal codes, regions
+        types: ['(cities)'], 
         fields: ['address_components', 'formatted_address', 'name'],
       });
 
@@ -162,7 +152,6 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       });
       onLocationSubmit(validated);
       setError(null);
-      setInputValue('');
     } catch {
       setError("Please select from the dropdown or type 'City, State'.");
     }
@@ -183,12 +172,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         className="w-full px-6 py-4 text-lg rounded-full border-2 border-election-blue-100 bg-white shadow-[0_4px_12px_rgba(21,101,192,0.08)] focus:border-election-blue-500 focus:outline-none focus:ring-4 focus:ring-election-blue-50 transition-all duration-300 text-gray-800 placeholder-gray-400"
         onKeyDown={handleKeyDown}
         onChange={(e) => {
-          const value = e.target.value;
-          setInputValue(value);
-          // Auto-trigger immediately on 5-digit zip code
-          if (/^\d{5}$/.test(value)) {
-            submitRawText(value);
-          }
+          setInputValue(e.target.value);
         }}
         aria-invalid={!!error}
         aria-describedby={error ? 'location-error' : undefined}

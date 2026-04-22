@@ -48,6 +48,12 @@ export default function Home() {
   const nextAction = timelineSteps.length > 0 ? getNextBestAction(timelineSteps) : null;
   const readiness = voterContext ? getReadinessStatus(voterContext, voterInfo) : null;
 
+  const resetFlow = () => {
+    setShowContextSelector(false);
+    setShowTimeline(false);
+    setVoterContext(null);
+  };
+
   return (
     <main id="main-content" className="flex-1 w-full max-w-5xl mx-auto px-4 py-12 md:py-20 flex flex-col items-center">
       
@@ -63,8 +69,26 @@ export default function Home() {
           Your personalized, non-partisan election roadmap. Enter your location to discover exactly how, when, and where to vote.
         </p>
 
-        {!showContextSelector && !showTimeline && (
+        {(!showContextSelector && !showTimeline) ? (
           <LocationInput onLocationSubmit={handleLocationSubmit} />
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-blue-100 shadow-sm"
+          >
+            <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="font-bold text-gray-900">{location?.city}, {location?.state}</span>
+            <button 
+              onClick={resetFlow}
+              className="ml-2 text-sm font-medium text-blue-600 hover:text-blue-800 underline underline-offset-4"
+            >
+              Change
+            </button>
+          </motion.div>
         )}
 
         <div className="mt-6 flex flex-col items-center gap-2">
