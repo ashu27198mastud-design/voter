@@ -14,6 +14,7 @@ export interface UserProgress {
  * Ensures data minimization by only storing non-sensitive context.
  */
 export const saveUserProgress = async (userId: string, progress: Partial<UserProgress>) => {
+  if (!db) return;
   try {
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
@@ -29,6 +30,7 @@ export const saveUserProgress = async (userId: string, progress: Partial<UserPro
  * Retrieves user roadmap progress from Firestore.
  */
 export const getUserProgress = async (userId: string): Promise<UserProgress | null> => {
+  if (!db) return null;
   try {
     const userRef = doc(db, "users", userId);
     const docSnap = await getDoc(userRef);
