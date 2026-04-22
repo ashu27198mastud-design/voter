@@ -24,7 +24,7 @@ export const db = app ? getFirestore(app) : null as any;
 
 // Initialize Analytics (optional, only in browser)
 export const initAnalytics = async () => {
-  if (typeof window !== "undefined" && await isSupported()) {
+  if (typeof window !== "undefined" && await isSupported() && app) {
     return getAnalytics(app);
   }
   return null;
