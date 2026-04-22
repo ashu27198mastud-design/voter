@@ -43,7 +43,7 @@ export default function Home() {
   // Generate timeline steps based on fetched data AND context
   const timelineSteps = voterContext ? generateTimelineFromVoterInfo(voterInfo, voterContext) : [];
   const nextAction = timelineSteps.length > 0 ? getNextBestAction(timelineSteps) : null;
-  const readiness = voterContext ? getReadinessStatus(voterContext) : null;
+  const readiness = voterContext ? getReadinessStatus(voterContext, voterInfo) : null;
 
   return (
     <main id="main-content" className="flex-1 w-full max-w-5xl mx-auto px-4 py-12 md:py-20 flex flex-col items-center">

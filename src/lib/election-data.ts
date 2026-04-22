@@ -11,11 +11,18 @@ export function generateTimelineFromVoterInfo(
 ): TimelineStep[] {
   const steps: TimelineStep[] = [];
 
+  const today = new Date();
+  const electionDateObj = voterInfo?.election?.electionDay ? new Date(voterInfo.election.electionDay) : new Date('2024-11-05');
+  const isAfterElection = today > electionDateObj;
+
   // 1. Eligibility & Registration Step
   let registrationDesc = 'Ensure you are registered to vote before the deadline.';
   let regStatus: TimelineStep['status'] = 'Not Started';
 
-  if (context.registrationStatus === 'registered') {
+  if (isAfterElection) {
+    registrationDesc = 'Registration for this election has closed. Prepare for the next cycle.';
+    regStatus = 'Not Started';
+  } else if (context.registrationStatus === 'registered') {
     registrationDesc = 'Your registration is reported as active. Verify your details.';
     regStatus = 'Completed';
   } else if (context.registrationStatus === 'unsure') {
@@ -32,6 +39,12 @@ export function generateTimelineFromVoterInfo(
     content: `
       <h3>Registration Guidelines</h3>
       <p>Before you can vote, you must be registered. Deadlines vary by state (typically 15-30 days before election day).</p>
+      ${isAfterElection ? `
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 mt-2">
+          <strong>Deadline Missed?</strong> In some states, you can still register on election day (Same Day Registration). 
+          Check if your state allows provisional voting or registration at the polls.
+        </div>
+      ` : ''}
       ${context.voterType === 'first-time' ? '<p><strong>First-Time Voter Note:</strong> You may need to provide additional ID verification when registering.</p>' : ''}
       ${context.voterType === 'moved' ? '<p><strong>Recently Moved:</strong> You must update your registration with your new address to vote in local races.</p>' : ''}
     `,
@@ -59,20 +72,21 @@ export function generateTimelineFromVoterInfo(
   steps.push({
     id: 'step-voting',
     title: 'Casting Your Ballot',
-    description: `Target Date: ${electionDate}`,
-    isCompleted: false,
-    status: 'Not Started',
+    description: isAfterElection ? 'Election Day has passed.' : `Target Date: ${electionDate}`,
+    isCompleted: isAfterElection,
+    status: isAfterElection ? 'Completed' : 'Not Started',
     content: `
       <h3>Election Day: ${electionName}</h3>
       <p>Official Date: <strong>${electionDate}</strong></p>
-      ${voterInfo?.pollingLocations && voterInfo.pollingLocations.length > 0 ? `
+      ${isAfterElection ? '<p class="text-amber-700 font-bold">Voting for this specific event is now closed. If you have already voted, move to the verification step.</p>' : ''}
+      ${!isAfterElection && voterInfo?.pollingLocations && voterInfo.pollingLocations.length > 0 ? `
         <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
           <strong>Your Polling Place:</strong><br/>
           ${voterInfo.pollingLocations[0].address.locationName || ''}<br/>
           ${voterInfo.pollingLocations[0].address.line1}, ${voterInfo.pollingLocations[0].address.city}
         </div>
-      ` : '<p>Check your local government website for polling location details.</p>'}
-      ${context.votingPreference === 'early' ? '<p><strong>Early Voting:</strong> Check for early voting centers that open 10-15 days before the main election.</p>' : ''}
+      ` : !isAfterElection ? '<p>Check your local government website for polling location details.</p>' : ''}
+      ${!isAfterElection && context.votingPreference === 'early' ? '<p><strong>Early Voting:</strong> Check for early voting centers that open 10-15 days before the main election.</p>' : ''}
     `,
   });
 
@@ -108,8 +122,14 @@ export function getNextBestAction(steps: TimelineStep[]): { title: string; actio
 /**
  * Determines readiness status
  */
-export function getReadinessStatus(context: VoterContext): { status: 'ready' | 'warning' | 'error'; text: string } {
-  if (context.registrationStatus === 'registered') {
+export function getReadinessStatus(context: VoterContext, voterInfo: VoterInfoResponse | null): { status: 'ready' | 'warning' | 'error'; text: string } {
+  const today = new Date();
+  const electionDateObj = voterInfo?.election?.electionDay ? new Date(voterInfo.election.electionDay) : new Date('2024-11-05');
+  const isAfterElection = today > electionDateObj;
+
+  if (isAfterElection) {
+    return { status: 'warning', text: '📅 Election Passed' };
+  } else if (context.registrationStatus === 'registered') {
     return { status: 'ready', text: '✔ Ready to Vote' };
   } else if (context.registrationStatus === 'unsure') {
     return { status: 'warning', text: '⚠ Action Required' };
