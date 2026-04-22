@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AI_SYSTEM_PROMPT } from '@/constants/prompts';
 import { GLOBAL_CONFIG } from '@/constants/regions';
-import { QuerySchema } from '@/lib/validation';
+import { QuerySchema, LocationSchema } from '@/lib/validation';
 import { sanitizeHtml } from '@/lib/security';
 import { logger } from '@/lib/logger';
 
@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Validate Input
     const validated = QuerySchema.parse({ query });
+    const validatedLocation = location ? LocationSchema.parse(location) : null;
 
     // 2. Get API Key (Check both internal and legacy prefixed names)
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;

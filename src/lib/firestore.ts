@@ -17,8 +17,14 @@ export const saveUserProgress = async (userId: string, progress: Partial<UserPro
   if (!db) return;
   try {
     const userRef = doc(db, "users", userId);
+    const sanitizedProgress = { ...progress };
+    if (sanitizedProgress.location) {
+      const { formattedAddress, ...minimalLocation } = sanitizedProgress.location;
+      sanitizedProgress.location = minimalLocation as UserLocation;
+    }
+
     await setDoc(userRef, {
-      ...progress,
+      ...sanitizedProgress,
       lastUpdated: serverTimestamp(),
     }, { merge: true });
   } catch (error) {

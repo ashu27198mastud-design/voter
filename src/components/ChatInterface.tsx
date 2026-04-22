@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage, UserLocation } from '../types';
 import { askElectionQuestion } from '@/services/ai';
 import { QuerySchema } from '../lib/validation';
+import { sanitizeHtml } from '../lib/security';
 
 interface ChatInterfaceProps {
   location: UserLocation | null;
@@ -165,10 +166,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                               </>
                             );
                           } catch (e) {
-                            return <div dangerouslySetInnerHTML={{ __html: msg.text }} />;
+                            return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.text) }} />;
                           }
                         }
-                        return <div dangerouslySetInnerHTML={{ __html: msg.text }} />;
+                        return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.text) }} />;
                       })()}
                     </div>
                   ) : (

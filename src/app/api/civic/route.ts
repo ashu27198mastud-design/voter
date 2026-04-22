@@ -1,24 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const address = searchParams.get('address');
   const type = searchParams.get('type') || 'voterinfo'; // 'voterinfo' or 'representatives'
 
-  if (!address) {
-    return NextResponse.json({ error: 'Address is required' }, { status: 400 });
+  // Strict validation for proxy parameters
+  const paramsSchema = z.object({
+    address: z.string().min(1).max(255),
+    type: z.enum(['voterinfo', 'representatives']).default('voterinfo')
+  });
+
+  const validated = paramsSchema.safeParse({ address, type });
+
+  if (!validated.success) {
+    return NextResponse.json({ error: 'Invalid parameters', details: validated.error.format() }, { status: 400 });
   }
+
+  const { address: cleanAddress, type: cleanType } = validated.data;
 
   const apiKey = process.env.CIVIC_API_KEY || process.env.NEXT_PUBLIC_CIVIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'Civic API key missing' }, { status: 503 });
   }
 
-  const endpoint = type === 'representatives' 
+  const endpoint = cleanType === 'representatives' 
     ? 'https://www.googleapis.com/civicinfo/v2/representatives'
     : 'https://www.googleapis.com/civicinfo/v2/voterinfo';
 
-  const url = `${endpoint}?address=${encodeURIComponent(address)}&key=${apiKey}`;
+  const url = `${endpoint}?address=${encodeURIComponent(cleanAddress)}&key=${apiKey}`;
 
   try {
     const response = await fetch(url);

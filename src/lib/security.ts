@@ -29,8 +29,10 @@ export function buildCSPHeader(): string {
  */
 export function sanitizeHtml(dirty: string): string {
   return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h3', 'h4'],
-    ALLOWED_ATTR: ['href', 'target', 'rel'],
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h3', 'h4', 'div', 'span'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'className', 'class'],
+    // Automatically add noopener/noreferrer to target="_blank"
+    FORBID_ATTR: ['style', 'onerror', 'onclick'],
   });
 }
 
