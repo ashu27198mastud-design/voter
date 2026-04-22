@@ -1,14 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { BallotBoxIcon } from '../components/BallotBoxIcon';
 import { LocationInput } from '../components/LocationInput';
 import { ElectionTimeline } from '../components/ElectionTimeline';
-import { ChatInterface } from '../components/ChatInterface';
 import { useElectionData } from '../hooks/useElectionData';
 import { generateTimelineFromVoterInfo } from '../lib/election-data';
 import { UserLocation } from '../lib/validation';
 
+// Efficiency: Lazy load ChatInterface
+const ChatInterface = dynamic(() => import('../components/ChatInterface').then(mod => mod.ChatInterface), {
+  ssr: false,
+  loading: () => <div className="fixed bottom-6 right-6 w-16 h-16 bg-election-amber-100 rounded-full animate-pulse" />
+});
+
+/**
+ * Main Single Page Application
+ * Renders the core election process education journey.
+ */
 export default function Home() {
   const { location, isLoading, error, voterInfo, fetchDataForLocation } = useElectionData();
   const [showTimeline, setShowTimeline] = useState(false);
@@ -27,14 +37,6 @@ export default function Home() {
   // Generate timeline steps based on fetched data
   const timelineSteps = generateTimelineFromVoterInfo(voterInfo);
 
-  // RULE 1: DATA MINIMIZATION - Clear session data on unmount (window close)
-  useEffect(() => {
-    return () => {
-      // Data is only held in React state, so it's cleared when the component unmounts.
-      // This ensures we meet the requirement of zero backend persistence and clear on close.
-    };
-  }, []);
-
   return (
     <main id="main-content" className="flex-1 w-full max-w-5xl mx-auto px-4 py-12 md:py-20 flex flex-col items-center">
       
@@ -52,12 +54,20 @@ export default function Home() {
 
         <LocationInput onLocationSubmit={handleLocationSubmit} />
 
-        <p className="text-xs text-gray-400 mt-6 flex items-center justify-center gap-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-          Privacy Notice: Location is used temporarily for fetching info and is never stored.
-        </p>
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <p className="text-xs text-gray-400 flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Privacy Notice: Location is used temporarily for fetching info and is never stored.
+          </p>
+          
+          {location && location.country !== 'US' && (
+            <p className="text-[10px] uppercase tracking-widest text-amber-600 font-bold bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+              Note: Demo currently features verified US Election data only.
+            </p>
+          )}
+        </div>
       </section>
 
       {/* Loading State */}
@@ -86,14 +96,16 @@ export default function Home() {
       )}
 
       {/* Timeline Section - always visible after location submitted */}
-      <div ref={timelineRef} className="w-full" tabIndex={-1}>
+      <section ref={timelineRef} className="w-full" tabIndex={-1} aria-label="Election Timeline">
         {!isLoading && showTimeline && (
           <ElectionTimeline steps={timelineSteps} isVisible={showTimeline} />
         )}
-      </div>
+      </section>
 
       {/* Floating Chat Interface */}
-      <ChatInterface location={location} />
+      <aside aria-label="Educational Chat Assistant">
+        <ChatInterface location={location} />
+      </aside>
 
     </main>
   );

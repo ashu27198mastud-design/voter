@@ -9,9 +9,13 @@ import { z } from 'zod';
 //   - Basic ASCII letters and digits
 //   - Common punctuation used in place names: space, hyphen, period, comma, apostrophe
 //   - Extended Latin (accented chars) U+00C0–U+024F: é, ñ, ü, ã etc.
+//   - Devanagari script for Indian locations
 const PLACE_NAME_REGEX = /^[a-zA-Z0-9\u00C0-\u024F\s\-.,'\u0900-\u097F]+$/;
 
-// Schema for location input (city, state, country)
+/**
+ * Schema for location input (city, state, country)
+ * Prevents SQL injection and XSS via strict regex and length limits.
+ */
 export const LocationSchema = z.object({
   city: z
     .string()
@@ -31,9 +35,10 @@ export const LocationSchema = z.object({
   formattedAddress: z.string().optional(),
 });
 
-export type UserLocation = z.infer<typeof LocationSchema>;
-
-// Schema for AI queries
+/**
+ * Schema for AI queries
+ * Enforces length limits and explicitly blocks <script> tags.
+ */
 export const QuerySchema = z.object({
   query: z
     .string()
@@ -45,9 +50,10 @@ export const QuerySchema = z.object({
     ),
 });
 
-export type UserQuery = z.infer<typeof QuerySchema>;
-
-// Enum schema for election steps
+/**
+ * Enum schema for election steps
+ * Ensures only valid process stages are processed.
+ */
 export const ElectionStepEnum = z.enum([
   'REGISTRATION',
   'PREPARATION',

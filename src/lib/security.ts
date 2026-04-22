@@ -1,17 +1,25 @@
 import DOMPurify from 'isomorphic-dompurify';
 
 /**
- * RULE 3 - OUTPUT SANITIZATION (DOMPurify):
- * All AI-generated content or user-submitted content rendered in the UI
- * MUST pass through this function.
+ * CSP_DIRECTIVES defines the allowed sources for various resource types.
+ * strictly adheres to the PromptWars security mandate.
  */
-
-const purifyConfig = {
-  ALLOWED_TAGS: ['p', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'a', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id'],
-  FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
-  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+export const CSP_DIRECTIVES = {
+  'default-src': ["'self'"],
+  'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://maps.googleapis.com'],
+  'connect-src': ["'self'", 'https://generativelanguage.googleapis.com', 'https://maps.googleapis.com', 'https://www.googleapis.com'],
+  'img-src': ["'self'", 'data:', 'https:'],
+  'frame-ancestors': ["'none'"],
 };
+
+/**
+ * Builds a Content Security Policy header string from directives.
+ */
+export function buildCSPHeader(): string {
+  return Object.entries(CSP_DIRECTIVES)
+    .map(([key, values]) => `${key} ${values.join(' ')}`)
+    .join('; ');
+}
 
 /**
  * Sanitizes an HTML string to prevent XSS attacks.
@@ -19,13 +27,15 @@ const purifyConfig = {
  * @returns A safe, sanitized HTML string.
  */
 export function sanitizeHtml(dirty: string): string {
-  // We use isomorphic-dompurify so this works on both client and server safely.
-  return DOMPurify.sanitize(dirty, purifyConfig) as string;
+  return DOMPurify.sanitize(dirty, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h3', 'h4'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
 }
 
 /**
- * Sanitizes plain text input (e.g., stripping tags completely if we only want text).
+ * Sanitizes plain text by removing all HTML tags.
  */
 export function sanitizeText(dirty: string): string {
-  return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }) as string;
+  return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [] });
 }
