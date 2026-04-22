@@ -26,7 +26,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         if (inputValue.includes(',') || inputValue.length > 5) {
             submitRawText(inputValue);
         }
-      }, 1000);
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [inputValue]);
@@ -44,21 +44,19 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         for (const c of components) {
           if (c.types.includes('locality')) city = c.long_name;
           else if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-          else if (c.types.includes('country')) country = c.short_name;
+          else if (c.types.includes('country')) country = c.short_name; // Use ISO code
         }
       }
 
+      // Fallback: If locality is not found, use the 'name' from Google Places (e.g., 'Mumbai')
       if (!city && formattedAddress) {
-        const parts = formattedAddress.split(',').map(s => s.trim());
-        if (parts.length > 0) city = parts[0];
-        if (parts.length > 1) state = parts[1];
-        if (parts.length > 2) country = parts[2];
+        city = formattedAddress.split(',')[0];
       }
 
       try {
         const validated = LocationSchema.parse({
           city: city || 'Unknown',
-          state: state || 'Unknown',
+          state: state || 'Global',
           country: country || 'US',
           formattedAddress,
         });

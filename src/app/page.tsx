@@ -40,8 +40,11 @@ export default function Home() {
     }, 100);
   };
 
-  // Generate timeline steps based on fetched data AND context
-  const timelineSteps = voterContext ? generateTimelineFromVoterInfo(voterInfo, voterContext) : [];
+  // Generate timeline steps based on fetched data AND context AND location
+  const timelineSteps = voterContext ? generateTimelineFromVoterInfo(voterInfo, voterContext, {
+    countryCode: location?.country,
+    city: location?.city
+  }) : [];
   const nextAction = timelineSteps.length > 0 ? getNextBestAction(timelineSteps) : null;
   const readiness = voterContext ? getReadinessStatus(voterContext, voterInfo) : null;
 

@@ -1,6 +1,6 @@
 # 🗳️ VotePath AI – Election Process Education Assistant
 
-VotePath AI is a decision-driven, non-partisan election guidance system that helps users navigate the voting process. This app provides personalized roadmaps, registration guidance, and an AI-powered educational guide.
+VotePath AI is a decision-driven, non-partisan election guidance assistant designed to tell users exactly what they need to do before voting. Unlike generic chatbots, it analyzes user context to generate a personalized roadmap, timeline, and a single "Next Best Action."
 
 ## ✨ Key Features
 
@@ -33,16 +33,22 @@ Clean, modern civic-tech interface with smooth animations and intuitive visual h
 
 ## 🧩 How It Works
 
-1. **Location Entry**: User enters their city or ZIP code.
-2. **Data Fetching**: System fetches region-specific election data via Google Civic API.
+1. **Location Entry**: User enters their city or ZIP code via Google Places Autocomplete.
+2. **Data Fetching**: System fetches data using the **Multi-Layer Data Architecture**.
 3. **Context Selection**: User identifies their status (first-time, registered, moved, etc.).
-4. **Roadmap Generation**: The decision engine generates:
-   - A personalized checklist
-   - A structured timeline
-   - The next recommended action
-5. **AI Guidance**: The VotePath Assistant provides contextual explanations for each step.
+4. **Roadmap Generation**: The decision engine generates a personalized roadmap with a "Next Best Action".
+5. **AI Guidance**: The VotePath Assistant provides simplified explanations.
 
 This ensures users are not just informed — they are **guided**.
+
+## 🏗️ Multi-Layer Data Architecture
+
+To ensure global adaptability and factual accuracy, VotePath AI uses a four-layer data strategy:
+
+1. **Layer 1: Primary (Google Civic API)**: Real-time, verified election data for regions with official API support.
+2. **Layer 2: Structured Fallbacks**: Hardcoded configuration for major regions (India, UK, Canada) covering essential steps and documents.
+3. **Layer 3: AI Explanation (Gemini)**: Used solely to simplify and explain complex government jargon, never to generate raw facts.
+4. **Layer 4: Safe Fallbacks**: General civic guidance provided if no specific region data is available.
 
 ## 🛠️ Tech Stack
 
