@@ -27,12 +27,24 @@ export async function POST(req: NextRequest) {
       systemInstruction: AI_SYSTEM_PROMPT
     });
 
+    const { GLOBAL_CONFIG } = await import('@/lib/election-data');
+    const countryCode = location?.countryCode || 'US';
+    const regionalData = GLOBAL_CONFIG[countryCode];
+
     const locationContext = location 
       ? `User location: ${location.city}, ${location.state}, ${location.country}.`
       : "User location: Unknown.";
 
+    const regionalContext = regionalData
+      ? `Regional Configuration Data for ${countryCode}:
+         - Standard Process: ${regionalData.process}
+         - Key Steps: ${regionalData.steps.join(', ')}
+         - Required Docs: ${regionalData.documents.join(', ')}`
+      : "";
+
     const prompt = `
       ${locationContext}
+      ${regionalContext}
       User question: ${validated.query}
       Provide a factual, nonpartisan answer about the election PROCESS only.
     `;
