@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.env.local
+Dockerfile
+.dockerignore
+README.md
+__tests__
+e2e
+playwright-report
+test-results
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
