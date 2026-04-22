@@ -2,18 +2,34 @@
 
 VotePath AI is a decision-driven, non-partisan election guidance system that helps users navigate the voting process. Built for the PromptWars challenge, this app provides personalized roadmaps, registration guidance, and an AI-powered educational guide.
 
-## ✨ Features
+## ✨ Key Features
 
-- **📍 Localized Election Timelines**: Fetches real-time election data from the Google Civic Information API based on your location.
-- **🤖 Non-Partisan AI Assistant**: A Gemini-powered chat interface that follows strict educational and neutrality rules to explain civic procedures.
-- **🔍 Auto-Search as you Type**: High-performance location input with debounced predictive search and instant Zip Code detection.
-- **🔒 Security First**: 
-  - NIST-aligned data minimization (Zero-backend architecture).
-  - Strict Zod input validation.
-  - Content Security Policy (CSP) headers.
-  - Output sanitization using DOMPurify.
-- **🎨 Premium UX**: 3D Pixar-inspired design with smooth Framer Motion animations and claymorphism aesthetics.
-- **♿ Fully Accessible**: WCAG 2.1 AA compliant with full keyboard navigation and screen reader support.
+### 🧠 Context-Aware Guidance Engine
+Transforms user inputs (location, voter status, preferences) into a personalized election roadmap with clear next steps.
+
+### 📍 Localized Election Intelligence
+Fetches real-time election timelines, polling data, and deadlines using the Google Civic Information API.
+
+### 📊 Visual Election Timeline
+Breaks down the voting process into a structured, step-by-step journey with clear stages and explanations.
+
+### 🤖 Controlled AI Assistant (Gemini)
+Provides simplified explanations of civic procedures with strict neutrality, factual grounding, and scope enforcement.
+
+### ⚡ Smart Location Input
+Debounced predictive search with instant ZIP code detection for fast and accurate user onboarding.
+
+### 🔒 Security-First Architecture
+- **Data Minimization**: Zero backend data storage (NIST aligned).
+- **Validation**: Zod-based strict input validation.
+- **Protection**: CSP headers for browser-level protection.
+- **Sanitization**: DOMPurify for output sanitization.
+
+### ♿ Accessibility by Design
+WCAG 2.1 AA compliant with full keyboard navigation and screen reader compatibility.
+
+### 🎨 Premium UX
+Clean, modern civic-tech interface with smooth animations and intuitive visual hierarchy (focused on clarity over decoration).
 
 ## 🛠️ Tech Stack
 
