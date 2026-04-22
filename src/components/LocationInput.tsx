@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { UserLocation, LocationSchema } from '../lib/validation';
+import { LocationSchema } from '../lib/validation';
+import { UserLocation } from '../types';
 
 interface LocationInputProps {
   onLocationSubmit: (location: UserLocation) => void;
