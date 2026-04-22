@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineStep } from '../types';
 import { sanitizeHtml } from '../lib/security';
 import { PollingMap } from './PollingMap';
+import { StatusBadge } from './ui/StatusBadge';
 
 interface StepCardProps {
   step: TimelineStep;
@@ -78,13 +79,7 @@ export const StepCard: React.FC<StepCardProps> = React.memo(({ step, index, isFi
               <span className="text-xs font-bold uppercase tracking-wider text-election-blue-500">
                 Step {index + 1}
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                step.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                step.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
-                'bg-gray-100 text-gray-600'
-              }`}>
-                {step.status}
-              </span>
+              <StatusBadge status={step.status} />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               {step.title}

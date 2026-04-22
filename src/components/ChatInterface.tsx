@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage, UserLocation } from '../types';
-import { askElectionQuestion } from '../lib/gemini';
+import { askElectionQuestion } from '@/services/ai';
 import { QuerySchema } from '../lib/validation';
 
 interface ChatInterfaceProps {
