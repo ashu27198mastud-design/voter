@@ -6,7 +6,7 @@ test.describe('End-to-End User Flow', () => {
     await page.goto('/');
 
     // Check title
-    await expect(page).toHaveTitle(/Election Process Education Assistant/);
+    await expect(page).toHaveTitle(/VotePath AI/);
 
     // Enter a location (Mocking the manual enter behavior)
     const input = page.locator('#location-input');
@@ -24,6 +24,6 @@ test.describe('End-to-End User Flow', () => {
     // Check chat interface
     const chatBtn = page.getByLabelText('Toggle Election Guide Chat');
     await chatBtn.click();
-    await expect(page.getByText('Election Guide')).toBeVisible();
+    await expect(page.getByText('VotePath Assistant')).toBeVisible();
   });
 });

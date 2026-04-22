@@ -9,8 +9,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Election Process Assistant",
-  description: "An interactive, educational guide to understanding the election process.",
+  title: "VotePath AI",
+  description: "Personalized, non-partisan election process guidance and education.",
 };
 
 export default function RootLayout({

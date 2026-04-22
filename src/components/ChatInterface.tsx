@@ -19,7 +19,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [{
       id: 'welcome-msg',
-      text: "Hi! I'm your non-partisan Election Guide. Ask me anything about the voting process.",
+      text: "Hi! I'm your VotePath Assistant. I can help you understand your personalized election roadmap and civic duties.",
       sender: 'ai',
       timestamp: Date.now()
   }]);
@@ -113,7 +113,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                Election Guide
+                VotePath Assistant
               </h3>
               <button 
                 onClick={handleToggle}

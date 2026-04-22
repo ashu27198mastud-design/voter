@@ -12,7 +12,7 @@ describe('ChatInterface Component', () => {
     render(<ChatInterface location={null} />);
     const button = screen.getByLabelText(/Toggle Election Guide Chat/i);
     fireEvent.click(button);
-    expect(screen.getByRole('heading', { name: /Election Guide/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /VotePath Assistant/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Ask about the voting process/i)).toBeInTheDocument();
   });
 

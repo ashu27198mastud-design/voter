@@ -1,6 +1,6 @@
-# 🗳️ Election Process Education Assistant
+# 🗳️ VotePath AI – Election Process Education Assistant
 
-A futuristic, non-partisan interactive web application designed to help users navigate the voting process. Built for the PromptWars challenge, this app provides localized election timelines, registration guidance, and an AI-powered educational guide.
+VotePath AI is a decision-driven, non-partisan election guidance system that helps users navigate the voting process. Built for the PromptWars challenge, this app provides personalized roadmaps, registration guidance, and an AI-powered educational guide.
 
 ## ✨ Features
 

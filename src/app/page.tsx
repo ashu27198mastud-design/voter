@@ -45,11 +45,11 @@ export default function Home() {
         <BallotBoxIcon className="w-40 h-40 mb-8" />
         
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4 text-balance">
-          Understand Your Election Process
+          VotePath AI
         </h1>
         
         <p className="text-lg text-gray-600 mb-10 max-w-lg mx-auto">
-          Learn how, when, and where to vote. Enter your location below to get personalized, factual information about upcoming elections.
+          Your personalized, non-partisan election roadmap. Enter your location to discover exactly how, when, and where to vote.
         </p>
 
         <LocationInput onLocationSubmit={handleLocationSubmit} />
