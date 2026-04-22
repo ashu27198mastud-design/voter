@@ -31,6 +31,19 @@ WCAG 2.1 AA compliant with full keyboard navigation and screen reader compatibil
 ### 🎨 Premium UX
 Clean, modern civic-tech interface with smooth animations and intuitive visual hierarchy (focused on clarity over decoration).
 
+## 🧩 How It Works
+
+1. **Location Entry**: User enters their city or ZIP code.
+2. **Data Fetching**: System fetches region-specific election data via Google Civic API.
+3. **Context Selection**: User identifies their status (first-time, registered, moved, etc.).
+4. **Roadmap Generation**: The decision engine generates:
+   - A personalized checklist
+   - A structured timeline
+   - The next recommended action
+5. **AI Guidance**: The VotePath Assistant provides contextual explanations for each step.
+
+This ensures users are not just informed — they are **guided**.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
