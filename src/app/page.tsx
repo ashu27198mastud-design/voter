@@ -10,6 +10,9 @@ import { useElectionData } from '../hooks/useElectionData';
 import { generateTimelineFromVoterInfo, getNextBestAction, getReadinessStatus } from '../lib/election-data';
 import { UserLocation, VoterContext } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { User } from 'firebase/auth';
+import { subscribeToAuthChanges } from '../lib/auth';
+import { saveUserProgress, getUserProgress } from '../lib/firestore';
 
 // Efficiency: Lazy load ChatInterface
 const ChatInterface = dynamic(() => import('../components/ChatInterface').then(mod => mod.ChatInterface), {
