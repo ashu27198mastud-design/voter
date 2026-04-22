@@ -55,13 +55,29 @@ export async function POST(req: NextRequest) {
       Provide a factual, nonpartisan answer about the election PROCESS only.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: AI_SYSTEM_PROMPT
+    });
 
-    logger.info('AI Chat successful', { query: validated.query });
+    try {
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
 
-    // 4. Sanitize and Return
-    return NextResponse.json({ response: sanitizeHtml(responseText) });
+      logger.info('AI Chat successful', { query: validated.query });
+
+      // 4. Sanitize and Return
+      return NextResponse.json({ response: sanitizeHtml(responseText) });
+    } catch (aiError: any) {
+      logger.warn('Gemini API failed, using regional fallback', { error: aiError.message });
+      
+      // Fallback: Provide the regional process summary if available
+      const fallbackText = regionalData 
+        ? `The VotePath Assistant is temporarily offline, but here is the official process for your region: ${regionalData.process}`
+        : "The VotePath Assistant is temporarily offline. Please follow the steps in your personalized roadmap.";
+        
+      return NextResponse.json({ response: sanitizeHtml(fallbackText) });
+    }
 
   } catch (error: any) {
     logger.error('API Chat Error', { error: error.message, stack: error.stack });

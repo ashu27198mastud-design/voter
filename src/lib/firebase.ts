@@ -1,11 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-/**
- * Firebase Integration for VotePath AI
- * Provides deep integration with Google Services for Authentication, 
- * Remote Config (for election cycles), and Analytics.
- */
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,9 +16,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const db = getFirestore(app);
+
 // Initialize Analytics (optional, only in browser)
-export const initFirebaseAnalytics = () => {
-  if (typeof window !== "undefined" && firebaseConfig.measurementId) {
+export const initAnalytics = async () => {
+  if (typeof window !== "undefined" && await isSupported()) {
     return getAnalytics(app);
   }
   return null;

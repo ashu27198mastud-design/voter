@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import { Header } from '@/components/Header';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
+import Script from 'next/script';
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -23,7 +26,16 @@ export default function RootLayout({
       <body
         className={`${roboto.className} antialiased min-h-screen flex flex-col relative`}
       >
+        <Header />
         <GoogleAnalytics />
+        <Script id="google-translate" strategy="afterInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            }
+          `}
+        </Script>
+        <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="afterInteractive" />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:text-election-blue-600 focus:rounded-md focus:shadow-md">
           Skip to main content
         </a>

@@ -13,6 +13,11 @@ export interface TimelineStep {
     content: string; // The detailed content when expanded
     actionLabel?: string;
     status: 'Not Started' | 'In Progress' | 'Completed';
+    pollingAddress?: {
+      line1: string;
+      city: string;
+      state: string;
+    };
 }
 
 export type VoterType = 'first-time' | 'returning' | 'moved' | 'overseas' | 'senior';

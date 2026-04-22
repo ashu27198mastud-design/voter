@@ -41,6 +41,27 @@ Clean, modern civic-tech interface with smooth animations and intuitive visual h
 
 This ensures users are not just informed — they are **guided**.
 
+## 🌐 Google Services Integration
+
+VotePath AI is deeply integrated into the Google ecosystem to provide a premium, secure, and highly functional experience. Our architecture leverages Google's state-of-the-art services for intelligence, persistence, and observability:
+
+### 🔥 Firebase Integration (Auth & Data)
+- **Google Sign-In**: Users can optionally authenticate using their Google accounts to save their election roadmap progress.
+- **Firestore Persistence**: Lightweight, NIST-aligned storage for user context (region, voter type) and checklist progress. This allows users to "Continue where they left off" across devices.
+- **Data Minimization**: We strictly avoid storing sensitive personal addresses. Only high-level geographic context (city/state) is persisted.
+
+### 🧠 Google Gemini AI (Intelligence)
+- **Explanation Layer**: Gemini acts as a cognitive bridge, translating complex government jargon into plain language.
+- **Scoped Grounding**: AI responses are strictly grounded in data from the Google Civic API and our regional configuration sets.
+
+### 🗺️ Google Maps & Places (Spatial context)
+- **Predictive Search**: Uses the Places API for fast, accurate location onboarding.
+- **Static Map Previews**: Generates lightweight, visual previews of polling locations directly within the roadmap steps.
+
+### 📊 Google Analytics & Cloud Logging
+- **Usage Insights**: Firebase Analytics tracks feature adoption (roadmap generation, search usage) to improve UX without compromising privacy.
+- **Observability**: Uses structured JSON logging for deep integration with **Google Cloud Logging**, enabling professional-grade monitoring on Cloud Run.
+
 ## 🏗️ Multi-Layer Data Architecture
 
 To ensure global adaptability and factual accuracy, VotePath AI uses a four-layer data strategy:

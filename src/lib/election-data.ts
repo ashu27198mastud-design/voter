@@ -95,6 +95,11 @@ export function generateTimelineFromVoterInfo(
     description: isAfterElection ? 'Voting period has concluded.' : `Target: ${electionDate}`,
     isCompleted: isAfterElection,
     status: isAfterElection ? 'Completed' : 'Not Started',
+    pollingAddress: voterInfo?.pollingLocations?.length ? {
+      line1: voterInfo.pollingLocations[0].address.line1,
+      city: voterInfo.pollingLocations[0].address.city,
+      state: voterInfo.pollingLocations[0].address.state,
+    } : undefined,
     content: `
       <h3>Election: ${electionName}</h3>
       <p>Date: <strong>${electionDate}</strong></p>

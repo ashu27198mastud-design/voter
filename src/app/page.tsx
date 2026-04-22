@@ -18,11 +18,44 @@ const ChatInterface = dynamic(() => import('../components/ChatInterface').then(m
 });
 
 export default function Home() {
-  const { location, isLoading, error, voterInfo, fetchDataForLocation } = useElectionData();
+  const { location, setLocation, isLoading, error, voterInfo, fetchDataForLocation } = useElectionData();
   const [voterContext, setVoterContext] = useState<VoterContext | null>(null);
   const [showContextSelector, setShowContextSelector] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+
+  // 1. Listen for Auth Changes
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthChanges(async (u) => {
+      setUser(u);
+      if (u) {
+        // Load progress if user is logged in
+        const progress = await getUserProgress(u.uid);
+        if (progress) {
+          if (progress.location) {
+            setLocation(progress.location);
+            await fetchDataForLocation(progress.location);
+          }
+          if (progress.voterContext) {
+            setVoterContext(progress.voterContext);
+            setShowTimeline(true);
+          }
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [fetchDataForLocation, setLocation]);
+
+  // 2. Persist Progress
+  useEffect(() => {
+    if (user) {
+      saveUserProgress(user.uid, {
+        location,
+        voterContext,
+      });
+    }
+  }, [user, location, voterContext]);
 
   const handleLocationSubmit = async (loc: UserLocation) => {
     await fetchDataForLocation(loc);

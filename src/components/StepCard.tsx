@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineStep } from '../types';
 import { sanitizeHtml } from '../lib/security';
+import { PollingMap } from './PollingMap';
 
 interface StepCardProps {
   step: TimelineStep;
@@ -118,8 +119,22 @@ export const StepCard: React.FC<StepCardProps> = React.memo(({ step, index, isFi
                 role="region"
                 aria-label={`Details for ${step.title}`}
                 className="pt-6 mt-4 border-t border-gray-100 prose prose-blue max-w-none text-gray-700"
-                dangerouslySetInnerHTML={{ __html: safeContent }}
-              />
+              >
+                <div dangerouslySetInnerHTML={{ __html: safeContent }} />
+                
+                {step.pollingAddress && (
+                  <div className="not-prose mt-6">
+                    <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Verified Polling Location
+                    </h3>
+                    <PollingMap address={step.pollingAddress} />
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
