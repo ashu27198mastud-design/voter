@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Validate Input
     const validated = QuerySchema.parse({ query });
-    const validatedLocation = location ? LocationSchema.parse(location) : null;
+    if (location) LocationSchema.parse(location);
 
     // 2. Get API Key (Check both internal and legacy prefixed names)
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -64,8 +64,9 @@ export async function POST(req: NextRequest) {
 
       // 4. Sanitize and Return
       return NextResponse.json({ response: sanitizeHtml(responseText) });
-    } catch (aiError: any) {
-      logger.warn('Gemini API failed, using regional fallback', { error: aiError.message });
+    } catch (aiError) {
+      const errorMessage = aiError instanceof Error ? aiError.message : String(aiError);
+      logger.warn('Gemini API failed, using regional fallback', { error: errorMessage });
       
       // Fallback: Provide the regional process summary if available
       const fallbackText = regionalData 
@@ -75,8 +76,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ response: sanitizeHtml(fallbackText) });
     }
 
-  } catch (error: any) {
-    logger.error('API Chat Error', { error: error.message, stack: error.stack });
+  } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      logger.error('API Chat Error', { error: errorMessage, stack: errorStack });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

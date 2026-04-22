@@ -5,7 +5,7 @@
 
 type LogLevel = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
-export function log(message: string, severity: LogLevel = 'INFO', payload: any = {}) {
+export function log(message: string, severity: LogLevel = 'INFO', payload: Record<string, unknown> = {}) {
   const logEntry = {
     message,
     severity,
@@ -24,8 +24,8 @@ export function log(message: string, severity: LogLevel = 'INFO', payload: any =
 }
 
 export const logger = {
-  info: (msg: string, payload?: any) => log(msg, 'INFO', payload),
-  warn: (msg: string, payload?: any) => log(msg, 'WARNING', payload),
-  error: (msg: string, payload?: any) => log(msg, 'ERROR', payload),
-  critical: (msg: string, payload?: any) => log(msg, 'CRITICAL', payload),
+  info: (msg: string, payload?: Record<string, unknown>) => log(msg, 'INFO', payload),
+  warn: (msg: string, payload?: Record<string, unknown>) => log(msg, 'WARNING', payload),
+  error: (msg: string, payload?: Record<string, unknown>) => log(msg, 'ERROR', payload),
+  critical: (msg: string, payload?: Record<string, unknown>) => log(msg, 'CRITICAL', payload),
 };
