@@ -9,11 +9,11 @@ import { GLOBAL_CONFIG } from '../constants/regions';
 export function generateTimeline(
   voterInfo: VoterInfoResponse | null,
   context: VoterContext,
-  location: { countryCode?: string, city?: string } | null = null
+  location: { country?: string, city?: string } | null = null
 ): TimelineStep[] {
   const steps: TimelineStep[] = [];
   const today = new Date();
-  const countryCode = location?.countryCode || 'US';
+  const countryCode = location?.country || 'US';
   const fallback = GLOBAL_CONFIG[countryCode];
 
   const electionName = voterInfo?.election?.name || (fallback ? `Upcoming ${countryCode} Election` : 'General Election Guidance');

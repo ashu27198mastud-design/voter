@@ -37,7 +37,7 @@ export default function Home() {
   // Derived State (Optimization: No extra state/renders)
   const timelineSteps = useMemo(() => 
     voterContext ? generateTimeline(voterInfo, voterContext, {
-      countryCode: location?.country,
+      country: location?.country,
       city: location?.city
     }) : [], 
   [voterInfo, voterContext, location]);

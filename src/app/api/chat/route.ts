@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Call Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
-    const countryCode = location?.countryCode || 'US';
+    const countryCode = location?.country || 'US';
     const regionalData = GLOBAL_CONFIG[countryCode];
 
     const locationContext = location 
