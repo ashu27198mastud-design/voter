@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAnalytics, isSupported } from 'firebase/analytics';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  RecaptchaVerifier, 
+  PhoneAuthProvider, 
+  PhoneMultiFactorGenerator,
+  multiFactor 
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -25,7 +32,17 @@ const auth = isConfigValid ? getAuth(app) : (null as unknown as ReturnType<typeo
 const googleProvider = isConfigValid ? new GoogleAuthProvider() : (null as unknown as GoogleAuthProvider);
 const db = isConfigValid ? getFirestore(app) : (null as unknown as ReturnType<typeof getFirestore>);
 
-// Analytics helper
+export { 
+  app, 
+  auth, 
+  googleProvider, 
+  db, 
+  RecaptchaVerifier, 
+  PhoneAuthProvider, 
+  PhoneMultiFactorGenerator, 
+  multiFactor 
+};
+
 export const getSafeAnalytics = async () => {
   if (isConfigValid && typeof window !== 'undefined' && (await isSupported())) {
     return getAnalytics(app);
@@ -41,4 +58,3 @@ export const logFirebaseEvent = async (name: string, params?: Record<string, unk
   }
 };
 
-export { app, auth, googleProvider, db };
