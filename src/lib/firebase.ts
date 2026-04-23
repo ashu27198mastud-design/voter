@@ -13,15 +13,20 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-const db = getFirestore(app);
+// Initialize Firebase conditionally to prevent build-time errors when env vars are missing
+const isConfigValid = !!firebaseConfig.apiKey;
+
+const app = !isConfigValid 
+  ? (null as unknown as ReturnType<typeof initializeApp>)
+  : (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig));
+
+const auth = isConfigValid ? getAuth(app) : (null as unknown as ReturnType<typeof getAuth>);
+const googleProvider = isConfigValid ? new GoogleAuthProvider() : (null as unknown as GoogleAuthProvider);
+const db = isConfigValid ? getFirestore(app) : (null as unknown as ReturnType<typeof getFirestore>);
 
 // Analytics helper
 export const getSafeAnalytics = async () => {
-  if (typeof window !== 'undefined' && (await isSupported())) {
+  if (isConfigValid && typeof window !== 'undefined' && (await isSupported())) {
     return getAnalytics(app);
   }
   return null;
