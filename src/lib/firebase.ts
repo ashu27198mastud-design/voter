@@ -1,14 +1,15 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import { 
   getAuth, 
   GoogleAuthProvider, 
   RecaptchaVerifier, 
   PhoneAuthProvider, 
   PhoneMultiFactorGenerator,
-  multiFactor 
+  multiFactor,
+  Auth
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,15 +21,18 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Check for valid config
-const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza');
+// Strict check for valid config - prevents initialization with placeholders
+const isConfigValid = typeof firebaseConfig.apiKey === 'string' && 
+                      firebaseConfig.apiKey.length > 10 &&
+                      firebaseConfig.apiKey.startsWith('AIza');
 
-// Initialize primitives
-let app: any = null;
-let auth: any = null;
-let googleProvider: any = null;
-let db: any = null;
+// Initialize primitives with extreme safety
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
+let db: Firestore | null = null;
 
+// Only initialize if we are in a browser or if config is valid on server
 if (isConfigValid) {
   try {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
@@ -36,7 +40,10 @@ if (isConfigValid) {
     googleProvider = new GoogleAuthProvider();
     db = getFirestore(app);
   } catch (error) {
-    console.warn('Firebase initialization failed:', error);
+    // If it fails, we keep them as null
+    if (typeof window !== 'undefined') {
+      console.warn('Firebase failed to initialize:', error);
+    }
   }
 }
 
@@ -48,11 +55,12 @@ export {
   RecaptchaVerifier, 
   PhoneAuthProvider, 
   PhoneMultiFactorGenerator, 
-  multiFactor 
+  multiFactor,
+  isConfigValid
 };
 
-export const getSafeAnalytics = async () => {
-  if (isConfigValid && typeof window !== 'undefined' && (await isSupported())) {
+export const getSafeAnalytics = async (): Promise<Analytics | null> => {
+  if (isConfigValid && app && typeof window !== 'undefined' && (await isSupported())) {
     try {
       return getAnalytics(app);
     } catch (e) {
