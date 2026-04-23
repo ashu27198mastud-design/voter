@@ -21,7 +21,7 @@ import {
  * Signs in the user using Google Provider.
  */
 export const signInWithGoogle = async () => {
-  if (!auth) return null;
+  if (!auth || !googleProvider) return null;
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
