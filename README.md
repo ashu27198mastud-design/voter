@@ -17,7 +17,7 @@ Breaks down the voting process into a structured, step-by-step journey with clea
 Provides simplified explanations of civic procedures with strict neutrality, factual grounding, and scope enforcement.
 
 ### ⚡ Smart Location Input
-Debounced predictive search with instant ZIP code detection for fast and accurate user onboarding.
+Predictive location search backed by the Google Places Autocomplete Service with 300 ms debouncing, in-memory caching, and full keyboard navigation — short inputs like "mum" reliably surface "Mumbai".
 
 ### 🔒 Security-First Architecture
 - **Data Minimization**: Zero backend data storage (NIST aligned).
@@ -41,7 +41,7 @@ VotePath AI was meticulously engineered to meet and exceed the hackathon's core 
    - **Maintainability**: Centralized API proxy services and configuration constants.
 
 2. **Security**:
-   - **Data Minimization (NIST-Aligned)**: Stripped all Personally Identifiable Information (PII) before storage. Full addresses are never saved to the database.
+   - **Data Minimization (NIST-Aligned)**: The application does not rely on a persistent database layer for voter lookups. Addresses are forwarded server-side to the Google Civic API and are not intentionally stored as application records.
    - **Input Validation**: Enforced strict `Zod` schemas with regex whitelisting across all API boundaries.
    - **XSS Mitigation**: Deployed a double-layer sanitization approach using `isomorphic-dompurify` for all AI-generated content.
 
@@ -78,10 +78,9 @@ This ensures users are not just informed — they are **guided**.
 
 VotePath AI is deeply integrated into the Google ecosystem to provide a premium, secure, and highly functional experience. Our architecture leverages Google's state-of-the-art services for intelligence, persistence, and observability:
 
-### 🔥 Firebase Integration (Auth & Data)
-- **Google Sign-In**: Users can optionally authenticate using their Google accounts to save their election roadmap progress.
-- **Firestore Persistence**: Lightweight, NIST-aligned storage for user context (region, voter type) and checklist progress. This allows users to "Continue where they left off" across devices.
-- **Data Minimization**: We strictly avoid storing sensitive personal addresses. Only high-level geographic context (city/state) is persisted.
+### 🔥 Firebase (Dependency Included)
+- Firebase is included as a dependency for optional future persistence of user checklist progress at a minimized city/state context level.
+- Authentication and Firestore persistence are scoped as roadmap features and are not positioned as fully active in the current release.
 
 ### 🧠 Google Gemini AI (Intelligence)
 - **Explanation Layer**: Gemini acts as a cognitive bridge, translating complex government jargon into plain language.
@@ -91,16 +90,16 @@ VotePath AI is deeply integrated into the Google ecosystem to provide a premium,
 - **Predictive Search**: Uses the Places API for fast, accurate location onboarding.
 - **Static Map Previews**: Generates lightweight, visual previews of polling locations directly within the roadmap steps.
 
-### 📊 Google Analytics & Cloud Logging
-- **Usage Insights**: Firebase Analytics tracks feature adoption (roadmap generation, search usage) to improve UX without compromising privacy.
-- **Observability**: Uses structured JSON logging for deep integration with **Google Cloud Logging**, enabling professional-grade monitoring on Cloud Run.
+### 📊 Observability
+- **Structured Logging**: Server-side API calls emit structured logs via `src/lib/logger.ts`, which are compatible with Google Cloud Logging when deployed on Cloud Run.
+- Firebase Analytics integration is planned, but is not positioned as active in the current release.
 
 ## 🏗️ Multi-Layer Data Architecture
 
-To ensure global adaptability and factual accuracy, VotePath AI uses a four-layer data strategy:
+VotePath AI is being structured toward a four-layer data strategy for broader global adaptability and safer fallback handling:
 
 1. **Layer 1: Primary (Google Civic API)**: Real-time, verified election data for regions with official API support.
-2. **Layer 2: Structured Fallbacks**: Hardcoded configuration for major regions (India, UK, Canada) covering essential steps and documents.
+2. **Layer 2: Structured Fallbacks**: Planned regional fallback configuration for major regions such as India, UK, and Canada.
 3. **Layer 3: AI Explanation (Gemini)**: Used solely to simplify and explain complex government jargon, never to generate raw facts.
 4. **Layer 4: Safe Fallbacks**: General civic guidance provided if no specific region data is available.
 
@@ -125,20 +124,20 @@ The application has been refactored to achieve industry-leading engineering stan
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript (Strict Mode)
-- **Styling**: Tailwind CSS
+- **Framework**: Next.js 16 (App Router) · React 19
+- **Language**: TypeScript 5 (Strict Mode)
+- **Styling**: Tailwind CSS v4
 - **Animations**: Framer Motion
-- **Validation**: Zod
-- **AI**: Google Gemini API (controlled and scoped)
+- **Validation**: Zod v4
+- **AI**: Google Gemini API (`@google/generative-ai`) — scoped, non-partisan
 - **APIs**:
-  - Google Civic Information API
+  - Google Civic Information API (server-proxied, zero PII storage)
   - Google Maps Places & Geocoding
 - **Testing**:
-  - Jest (unit)
+  - Jest 30 (unit)
   - Playwright (E2E)
 - **Deployment**:
-  - GitHub + Google Cloud Run
+  - GitHub → Google Cloud Run (containerised, stateless)
 
 ## ☁️ Deployment
 
@@ -165,9 +164,12 @@ The app is designed to run in a stateless, serverless environment with minimal i
 3. **Set up Environment Variables**:
    Create a `.env.local` file and add your API keys:
    ```env
-   NEXT_PUBLIC_GEMINI_API_KEY=your_key
-   NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_key
-   NEXT_PUBLIC_CIVIC_API_KEY=your_key
+   # Server-side only
+   CIVIC_API_KEY=your_google_civic_api_key
+
+   # Client-safe
+   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
+   NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_maps_key
    ```
 
 4. **Run the development server**:
