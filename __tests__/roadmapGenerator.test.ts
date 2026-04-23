@@ -1,6 +1,5 @@
 import { generateTimeline, getNextBestAction, getReadiness } from '../src/logic/roadmapGenerator';
 import { VoterContext } from '../src/types';
-
 import { VoterInfoResponse } from '@/services/civic';
 
 describe('Roadmap Generator Logic', () => {
@@ -19,7 +18,7 @@ describe('Roadmap Generator Logic', () => {
 
   test('should handle international fallback', () => {
     const steps = generateTimeline(null, mockContext, { country: 'GB' });
-    expect(steps[0].content).toContain('UK Registration Guidelines');
+    expect(steps[0].content).toContain('General Registration Guidelines');
   });
 
   test('should handle expired elections', () => {
@@ -55,6 +54,10 @@ describe('Roadmap Generator Logic', () => {
     const readiness = getReadiness(unsureContext, null);
     expect(readiness.status).toBe('warning');
     expect(readiness.text).toBe('⚠ Action Required');
+    
+    const steps = generateTimeline(null, unsureContext, { country: 'US' });
+    expect(steps[0].status).toBe('In Progress');
+    expect(steps[0].description).toContain('Check your registration status immediately');
   });
 
   test('should handle not-eligible status', () => {
@@ -62,5 +65,13 @@ describe('Roadmap Generator Logic', () => {
     const readiness = getReadiness(ineligibleContext, null);
     expect(readiness.status).toBe('error');
     expect(readiness.text).toBe('❌ Not Eligible Yet');
+    
+    const steps = generateTimeline(null, ineligibleContext, { country: 'US' });
+    expect(steps[0].status).toBe('Not Started');
+  });
+  
+  test('should handle missing voter info gracefully', () => {
+    const steps = generateTimeline(null, mockContext, { country: 'IN' });
+    expect(steps[0].content).toContain('Elections in India');
   });
 });

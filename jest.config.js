@@ -11,7 +11,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['<rootDir>/e2e/'],
+  testPathIgnorePatterns: ['<rootDir>/e2e/', '<rootDir>/__tests__/ignored/'],
   transformIgnorePatterns: [
     '/node_modules/(?!(@exodus/bytes|isomorphic-dompurify)/)',
   ],
