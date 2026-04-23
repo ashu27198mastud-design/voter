@@ -20,17 +20,29 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase conditionally to prevent build-time errors when env vars are missing
-// We check for a real-looking key (must start with AIza) to avoid placeholders breaking the build
-const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza');
+// State for valid initialization
+let isConfigValid = false;
+let app: any = null;
+let auth: any = null;
+let googleProvider: any = null;
+let db: any = null;
 
-const app = !isConfigValid 
-  ? (null as unknown as ReturnType<typeof initializeApp>)
-  : (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig));
-
-const auth = isConfigValid ? getAuth(app) : (null as unknown as ReturnType<typeof getAuth>);
-const googleProvider = isConfigValid ? new GoogleAuthProvider() : (null as unknown as GoogleAuthProvider);
-const db = isConfigValid ? getFirestore(app) : (null as unknown as ReturnType<typeof getFirestore>);
+// Hardened initialization with try-catch to prevent build-time crashes
+try {
+  // Check if we have a real-looking key
+  if (firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza')) {
+    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    db = getFirestore(app);
+    isConfigValid = true;
+  }
+} catch (error) {
+  // Silently fail during build time
+  if (process.env.NODE_ENV !== 'production' || typeof window !== 'undefined') {
+    console.warn('Firebase initialization failed (expected during build):', error);
+  }
+}
 
 export { 
   app, 
@@ -45,7 +57,11 @@ export {
 
 export const getSafeAnalytics = async () => {
   if (isConfigValid && typeof window !== 'undefined' && (await isSupported())) {
-    return getAnalytics(app);
+    try {
+      return getAnalytics(app);
+    } catch (e) {
+      return null;
+    }
   }
   return null;
 };
@@ -53,8 +69,11 @@ export const getSafeAnalytics = async () => {
 export const logFirebaseEvent = async (name: string, params?: Record<string, unknown>) => {
   const analytics = await getSafeAnalytics();
   if (analytics) {
-    const { logEvent } = await import('firebase/analytics');
-    logEvent(analytics, name, params);
+    try {
+      const { logEvent } = await import('firebase/analytics');
+      logEvent(analytics, name, params);
+    } catch (e) {
+      // Ignore analytics errors
+    }
   }
 };
-
