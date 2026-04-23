@@ -10,12 +10,9 @@ jest.mock('@/components/ChatInterface', () => ({
 // Mock security/dompurify to avoid ESM transform issues in JSDOM
 jest.mock('isomorphic-dompurify', () => ({
   sanitize: () => '',
+  addHook: jest.fn(),
 }));
 
-jest.mock('@/lib/security', () => ({
-  sanitizeInput: () => '',
-  validateAddress: () => true,
-}));
 
 // Mock auth + firestore side effects
 jest.mock('@/lib/auth', () => ({

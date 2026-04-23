@@ -11,13 +11,9 @@ expect.extend(toHaveNoViolations);
 // Mock security/dompurify to avoid ESM transform issues in JSDOM
 jest.mock('isomorphic-dompurify', () => ({
   sanitize: () => '',
+  addHook: jest.fn(),
 }));
 
-jest.mock('@/lib/security', () => ({
-  sanitizeInput: () => '',
-  validateAddress: () => true,
-  sanitizeHtml: () => '',
-}));
 
 // Mock Framer Motion
 jest.mock('framer-motion', () => ({
