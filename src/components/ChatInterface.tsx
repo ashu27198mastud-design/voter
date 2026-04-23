@@ -36,10 +36,39 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
     }
   }, [messages, isOpen]);
 
-  // Focus input when opened
+  // Focus trap and management
   useEffect(() => {
     if (isOpen) {
+      const dialog = document.getElementById('chat-dialog');
+      if (!dialog) return;
+
+      const focusableElements = dialog.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      const handleTabKey = (e: KeyboardEvent) => {
+        if (e.key !== 'Tab') return;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      };
+
+      // Focus input initially
       setTimeout(() => inputRef.current?.focus(), 300);
+
+      window.addEventListener('keydown', handleTabKey);
+      return () => window.removeEventListener('keydown', handleTabKey);
     }
   }, [isOpen]);
 
@@ -100,18 +129,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="chat-dialog"
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-gray-100 w-80 sm:w-96 h-[32rem] mb-4 flex flex-col overflow-hidden"
             role="dialog"
-            aria-label="Election Assistant Chat"
+            aria-modal="true"
+            aria-labelledby="chat-title"
           >
             {/* Header */}
             <div className="bg-election-blue-600 text-white p-4 flex justify-between items-center shrink-0">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <h3 id="chat-title" className="font-bold text-lg flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 VotePath Assistant
@@ -121,7 +152,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                 className="text-white/80 hover:text-white focus:outline-none focus:ring-2 focus:ring-white rounded"
                 aria-label="Close chat"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -153,7 +184,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                             
                             return (
                               <>
-                                {cleanText && <div dangerouslySetInnerHTML={{ __html: cleanText }} className="mb-3" />}
+                                {cleanText && (
+                                  <div
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanText) }}
+                                    className="mb-3"
+                                  />
+                                )}
                                 <div className="space-y-2 mt-2">
                                   {events.map((ev: { type: string; date: string; status: string; event: string; description?: string }, idx: number) => (
                                     <div key={idx} className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
@@ -208,7 +244,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                   className="absolute right-2 p-2 bg-election-blue-500 text-white rounded-full hover:bg-election-blue-600 disabled:opacity-50 disabled:hover:bg-election-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-election-blue-500 transition-colors"
                   aria-label="Send message"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
@@ -226,11 +262,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
         className="w-16 h-16 bg-election-amber-500 hover:bg-election-amber-600 text-white rounded-full shadow-[0_8px_24px_rgba(251,140,0,0.3)] flex items-center justify-center transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-election-amber-200"
       >
         {isOpen ? (
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
         )}
