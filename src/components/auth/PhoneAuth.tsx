@@ -107,7 +107,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
               </div>
               <button
                 type="submit"
-                disabled={otp.length !== 6 || step === 'VERIFYING'}
+                disabled={otp.length !== 6 || step === 'VERIFYING' as any}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {step === 'VERIFYING' ? (
@@ -130,7 +130,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
               </div>
               <button
                 type="submit"
-                disabled={phoneNumber.length < 10 || step === 'VERIFYING'}
+                disabled={phoneNumber.length < 10 || step === 'VERIFYING' as any}
                 className="w-full py-3 bg-gray-900 hover:bg-black disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {step === 'VERIFYING' ? (
