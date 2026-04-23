@@ -10,7 +10,7 @@ jest.mock('isomorphic-dompurify', () => {
 
   return {
     sanitize: jest.fn((text: string) => text),
-    addHook: jest.fn((event: string, cb: (node: any) => void) => {
+    addHook: jest.fn((event: string, cb: (node: unknown) => void) => {
       if (event === 'afterSanitizeAttributes') {
         cb(mockNode);
         cb({}); // node without target
