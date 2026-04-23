@@ -36,3 +36,15 @@ export interface ChatMessage {
     sender: 'user' | 'ai';
     timestamp: number;
 }
+
+export interface ElectionContextResult {
+  location: string;
+  countryCode: string;
+  officialGuidance: string | null;
+  keySteps: string[];
+  requiredDocuments: string[];
+  verifiedUpdates: string[]; // Refined from "recentUpdates" to avoid live-search implication
+  fallbackSummary: string;
+  verificationNote: string;
+  hasOfficialData: boolean;
+}

@@ -38,9 +38,9 @@ export interface CivicRepresentativesResponse {
  * DATA MINIMIZATION: Address is used only for the request and never stored.
  */
 export async function queryVoterInfo(address: string): Promise<CivicVoterInfoResponse | null> {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY;
+  const apiKey = process.env.GOOGLE_CIVIC_API_KEY || process.env.CIVIC_API_KEY;
   if (!apiKey) {
-    logger.error('GOOGLE_CIVIC_API_KEY is missing');
+    logger.error('Civic API Key is missing (checked GOOGLE_CIVIC_API_KEY and CIVIC_API_KEY)');
     return null;
   }
 
@@ -68,7 +68,7 @@ export async function queryVoterInfo(address: string): Promise<CivicVoterInfoRes
  * DATA MINIMIZATION: Address is discarded immediately after the request.
  */
 export async function queryRepresentatives(address: string): Promise<CivicRepresentativesResponse | null> {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY;
+  const apiKey = process.env.GOOGLE_CIVIC_API_KEY || process.env.CIVIC_API_KEY;
   if (!apiKey) return null;
 
   try {
