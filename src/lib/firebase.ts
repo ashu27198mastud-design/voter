@@ -14,7 +14,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase conditionally to prevent build-time errors when env vars are missing
-const isConfigValid = !!firebaseConfig.apiKey;
+// We check for a real-looking key (must start with AIza) to avoid placeholders breaking the build
+const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza');
 
 const app = !isConfigValid 
   ? (null as unknown as ReturnType<typeof initializeApp>)
