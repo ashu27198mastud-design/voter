@@ -6,7 +6,7 @@ export interface UserProgress {
   location: UserLocation | null;
   voterContext: VoterContext | null;
   checklistProgress: Record<string, boolean>;
-  lastUpdated: any;
+  lastUpdated: unknown;
 }
 
 /**
