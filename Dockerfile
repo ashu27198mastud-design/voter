@@ -25,5 +25,6 @@ COPY --from=builder /app/node_modules ./node_modules
 
 USER nextjs
 
-EXPOSE 3000
+ENV PORT=8080
+EXPOSE 8080
 CMD ["npm", "run", "start"]
