@@ -29,58 +29,54 @@ Call log:
 
 ```yaml
 - generic [active] [ref=e1]:
-  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img [ref=e4]:
+        - generic [ref=e8]: VOTE
+      - generic [ref=e11]: VotePath AI
+    - button "Sign in with Google" [ref=e15]:
+      - img [ref=e16]
+      - text: Sign in with Google
+  - link "Skip to main content" [ref=e21] [cursor=pointer]:
     - /url: "#main-content"
-  - main [ref=e3]:
-    - generic [ref=e4]:
-      - img [ref=e5]:
-        - generic [ref=e9]: VOTE
-      - heading "VotePath AI" [level=1] [ref=e12]
-      - paragraph [ref=e13]: Your personalized, non-partisan election roadmap. Enter your location to discover exactly how, when, and where to vote.
-      - generic [ref=e14]:
-        - img [ref=e15]
-        - generic [ref=e18]: Mumbai, India
-        - button "Change" [ref=e19]
-      - paragraph [ref=e21]:
-        - img [ref=e22]
-        - text: "Privacy Notice: Location is used temporarily for fetching info and is never stored."
-    - generic [ref=e24]:
-      - generic [ref=e25]:
-        - heading "Personalize Your Roadmap" [level=2] [ref=e26]
-        - generic [ref=e27]: Step 1 of 3
-      - generic [ref=e28]:
-        - paragraph [ref=e29]: Which best describes you?
-        - button "First-Time Voter Never voted before" [ref=e30]:
-          - generic [ref=e31]: First-Time Voter
-          - generic [ref=e32]: Never voted before
-        - button "Returning Voter Voted in previous elections" [ref=e33]:
-          - generic [ref=e34]: Returning Voter
-          - generic [ref=e35]: Voted in previous elections
-        - button "Recently Moved New address in a new jurisdiction" [ref=e36]:
-          - generic [ref=e37]: Recently Moved
-          - generic [ref=e38]: New address in a new jurisdiction
-        - button "Senior Voter May require accessibility support" [ref=e39]:
-          - generic [ref=e40]: Senior Voter
-          - generic [ref=e41]: May require accessibility support
-        - button "Overseas / Military Voting from outside the US" [ref=e42]:
-          - generic [ref=e43]: Overseas / Military
-          - generic [ref=e44]: Voting from outside the US
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - img [ref=e24]:
+        - generic [ref=e28]: VOTE
+      - heading "VotePath AI" [level=1] [ref=e31]
+      - paragraph [ref=e32]: Your personalized, non-partisan election roadmap. Discover exactly how, when, and where to vote.
+      - generic [ref=e33]:
+        - img [ref=e34]
+        - generic [ref=e37]: Mumbai, India
+        - button "Change" [ref=e38]
+      - paragraph [ref=e40]:
+        - img [ref=e41]
+        - text: "Privacy Notice: Data is processed in real-time and minimized for your security."
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - heading "Personalize Your Roadmap" [level=2] [ref=e45]
+        - generic [ref=e46]: Step 1 of 3
+      - generic [ref=e47]:
+        - paragraph [ref=e48]: Which best describes you?
+        - button "First-Time Voter Never voted before" [ref=e49]:
+          - generic [ref=e50]: First-Time Voter
+          - generic [ref=e51]: Never voted before
+        - button "Returning Voter Voted in previous elections" [ref=e52]:
+          - generic [ref=e53]: Returning Voter
+          - generic [ref=e54]: Voted in previous elections
+        - button "Recently Moved New address in a new jurisdiction" [ref=e55]:
+          - generic [ref=e56]: Recently Moved
+          - generic [ref=e57]: New address in a new jurisdiction
+        - button "Senior Voter May require accessibility support" [ref=e58]:
+          - generic [ref=e59]: Senior Voter
+          - generic [ref=e60]: May require accessibility support
+        - button "Overseas / Military Voting from outside the US" [ref=e61]:
+          - generic [ref=e62]: Overseas / Military
+          - generic [ref=e63]: Voting from outside the US
     - region "Election Timeline"
-    - complementary "Educational Chat Assistant":
-      - button "Toggle Election Guide Chat" [ref=e46]:
-        - img [ref=e47]
-  - generic [ref=e55]:
-    - button "Open Next.js Dev Tools" [ref=e56]:
-      - img [ref=e57]
-    - generic [ref=e60]:
-      - button "Open issues overlay" [ref=e61]:
-        - generic [ref=e62]:
-          - generic [ref=e63]: "0"
-          - generic [ref=e64]: "1"
-        - generic [ref=e65]: Issue
-      - button "Collapse issues badge" [ref=e66]:
-        - img [ref=e67]
-  - alert [ref=e69]
+    - button "Toggle Election Guide Chat" [ref=e65]:
+      - img [ref=e66]
+  - alert [ref=e68]
 ```
 
 # Test source

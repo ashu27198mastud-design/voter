@@ -17,7 +17,7 @@ Error: expect(locator).toBeVisible() failed
 Locator: locator('div:has-text("EPIC")')
 Expected: visible
 Error: strict mode violation: locator('div:has-text("EPIC")') resolved to 4 elements:
-    1) <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">…</div> aka locator('div').nth(4)
+    1) <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">…</div> aka locator('div').filter({ hasText: 'VotePath AssistantHi! I\'m' }).first()
     2) <div role="dialog" aria-label="Election Assistant Chat" class="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-gray-100 w-80 sm:w-96 h-[32rem] mb-4 flex flex-col overflow-hidden">…</div> aka getByRole('dialog', { name: 'Election Assistant Chat' })
     3) <div aria-live="polite" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-3">…</div> aka locator('div').filter({ hasText: 'Hi! I\'m your VotePath' }).nth(2)
     4) <div class="max-w-[85%] p-3 rounded-2xl bg-election-blue-500 text-white rounded-tr-sm self-end">…</div> aka locator('div').filter({ hasText: /^What is an EPIC card\?$/ })
@@ -32,55 +32,51 @@ Call log:
 
 ```yaml
 - generic [active] [ref=e1]:
-  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img [ref=e4]:
+        - generic [ref=e8]: VOTE
+      - generic [ref=e11]: VotePath AI
+    - button "Sign in with Google" [ref=e15]:
+      - img [ref=e16]
+      - text: Sign in with Google
+  - link "Skip to main content" [ref=e21] [cursor=pointer]:
     - /url: "#main-content"
-  - main [ref=e3]:
-    - generic [ref=e4]:
-      - img [ref=e5]:
-        - generic [ref=e9]: VOTE
-      - heading "VotePath AI" [level=1] [ref=e12]
-      - paragraph [ref=e13]: Your personalized, non-partisan election roadmap. Enter your location to discover exactly how, when, and where to vote.
-      - generic [ref=e14]:
-        - generic [ref=e15]: Enter your city or zip code
-        - textbox "Enter your city or zip code" [ref=e16]:
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - img [ref=e24]:
+        - generic [ref=e28]: VOTE
+      - heading "VotePath AI" [level=1] [ref=e31]
+      - paragraph [ref=e32]: Your personalized, non-partisan election roadmap. Discover exactly how, when, and where to vote.
+      - generic [ref=e33]:
+        - generic [ref=e34]: Enter your city or zip code
+        - textbox "Enter your city or zip code" [ref=e35]:
           - /placeholder: Enter your city or zip code...
-      - paragraph [ref=e19]:
-        - img [ref=e20]
-        - text: "Privacy Notice: Location is used temporarily for fetching info and is never stored."
+      - paragraph [ref=e38]:
+        - img [ref=e39]
+        - text: "Privacy Notice: Data is processed in real-time and minimized for your security."
     - region "Election Timeline"
-    - complementary "Educational Chat Assistant":
-      - generic [ref=e22]:
-        - dialog "Election Assistant Chat" [ref=e23]:
-          - generic [ref=e24]:
-            - heading "VotePath Assistant" [level=3] [ref=e25]:
-              - img [ref=e26]
-              - text: VotePath Assistant
-            - button "Close chat" [ref=e28]:
-              - img [ref=e29]
-          - generic [ref=e31]:
-            - generic [ref=e34]: Hi! I'm your VotePath Assistant. I can help you understand your personalized election roadmap and civic duties.
-            - paragraph [ref=e36]: What is an EPIC card?
-            - generic [ref=e39]: I encountered an error while trying to answer your question. Please try again later.
-          - generic [ref=e41]:
-            - generic [ref=e42]: Type your question
-            - textbox "Type your question" [ref=e43]:
-              - /placeholder: Ask about the voting process...
-            - button "Send message" [disabled] [ref=e44]:
-              - img [ref=e45]
-        - button "Toggle Election Guide Chat" [expanded] [ref=e47]:
-          - img [ref=e48]
-  - generic [ref=e56]:
-    - button "Open Next.js Dev Tools" [ref=e57]:
-      - img [ref=e58]
-    - generic [ref=e61]:
-      - button "Open issues overlay" [ref=e62]:
-        - generic [ref=e63]:
-          - generic [ref=e64]: "1"
-          - generic [ref=e65]: "2"
-        - generic [ref=e66]: Issues
-      - button "Collapse issues badge" [ref=e67]:
-        - img [ref=e68]
-  - alert [ref=e70]
+    - generic [ref=e41]:
+      - dialog "Election Assistant Chat" [ref=e42]:
+        - generic [ref=e43]:
+          - heading "VotePath Assistant" [level=3] [ref=e44]:
+            - img [ref=e45]
+            - text: VotePath Assistant
+          - button "Close chat" [ref=e47]:
+            - img [ref=e48]
+        - generic [ref=e50]:
+          - generic [ref=e53]: Hi! I'm your VotePath Assistant. I can help you understand your personalized election roadmap and civic duties.
+          - paragraph [ref=e55]: What is an EPIC card?
+          - generic [ref=e60]: AI is thinking...
+        - generic [ref=e62]:
+          - generic [ref=e63]: Type your question
+          - textbox "Type your question" [disabled] [ref=e64]:
+            - /placeholder: Ask about the voting process...
+          - button "Send message" [disabled] [ref=e65]:
+            - img [ref=e66]
+      - button "Toggle Election Guide Chat" [expanded] [ref=e68]:
+        - img [ref=e69]
+  - alert [ref=e71]
 ```
 
 # Test source

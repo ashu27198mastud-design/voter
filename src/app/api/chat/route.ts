@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AI_SYSTEM_PROMPT } from '@/constants/prompts';
+import { AI_SYSTEM_PROMPT } from '@/config/aiPrompt';
 import { QuerySchema, LocationSchema } from '@/lib/validation';
 import { sanitizeHtml } from '@/lib/security';
 import { logger } from '@/lib/logger';
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     // 5. Call Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       systemInstruction: AI_SYSTEM_PROMPT,
     });
 
