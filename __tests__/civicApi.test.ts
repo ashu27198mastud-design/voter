@@ -1,14 +1,18 @@
-// Mock fetch globally
-global.fetch = jest.fn();
 
 describe('civicApi utility', () => {
   const mockApiKey = 'test-api-key';
   const originalEnv = process.env;
+  const originalFetch = global.fetch;
 
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...originalEnv, GOOGLE_CIVIC_API_KEY: mockApiKey };
-    (fetch as jest.Mock).mockClear();
+    global.fetch = jest.fn();
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
@@ -58,6 +62,13 @@ describe('civicApi utility', () => {
   });
 
   describe('queryRepresentatives', () => {
+    it('returns null if API key is missing', async () => {
+      process.env.GOOGLE_CIVIC_API_KEY = '';
+      const { queryRepresentatives } = require('@/utils/civicApi');
+      const result = await queryRepresentatives('test address');
+      expect(result).toBeNull();
+    });
+
     it('successfully fetches representatives', async () => {
       const mockData = { officials: [{ name: 'John Doe' }] };
       (fetch as jest.Mock).mockResolvedValueOnce({
@@ -78,6 +89,12 @@ describe('civicApi utility', () => {
 
       const { queryRepresentatives } = require('@/utils/civicApi');
       const result = await queryRepresentatives('unknown address');
+      expect(result).toBeNull();
+    });
+    it('returns null on fetch rejection', async () => {
+      (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      const { queryRepresentatives } = require('@/utils/civicApi');
+      const result = await queryRepresentatives('test address');
       expect(result).toBeNull();
     });
   });
