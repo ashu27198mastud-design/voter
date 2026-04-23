@@ -20,27 +20,23 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// State for valid initialization
-let isConfigValid = false;
+// Check for valid config
+const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza');
+
+// Initialize primitives
 let app: any = null;
 let auth: any = null;
 let googleProvider: any = null;
 let db: any = null;
 
-// Hardened initialization with try-catch to prevent build-time crashes
-try {
-  // Check if we have a real-looking key
-  if (firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza')) {
+if (isConfigValid) {
+  try {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
     db = getFirestore(app);
-    isConfigValid = true;
-  }
-} catch (error) {
-  // Silently fail during build time
-  if (process.env.NODE_ENV !== 'production' || typeof window !== 'undefined') {
-    console.warn('Firebase initialization failed (expected during build):', error);
+  } catch (error) {
+    console.warn('Firebase initialization failed:', error);
   }
 }
 
