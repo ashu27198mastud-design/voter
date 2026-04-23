@@ -30,21 +30,25 @@ export const ElectionTimeline: React.FC<ElectionTimelineProps> = memo(({ steps, 
 
   if (!isVisible || steps.length === 0) return null;
 
-  return (
-    <section 
-      className="w-full max-w-3xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
-      aria-label="Election Process Timeline"
-    >
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900">Your Election Journey</h2>
-        <p className="text-gray-600 mt-2">Follow these steps to ensure your vote is counted.</p>
-      </div>
+    return (
+      <section
+        className="w-full max-w-3xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
+        aria-labelledby="election-timeline-heading"
+      >
+        <div className="mb-8 text-center">
+          <h2 id="election-timeline-heading" className="text-3xl font-bold text-gray-900">
+            Your Election Journey
+          </h2>
+          <p className="text-gray-600 mt-2">
+            Follow these steps to ensure your vote is counted.
+          </p>
+        </div>
 
-      <div className="space-y-0 pb-12" role="list">
-        {renderedSteps}
-      </div>
-    </section>
-  );
+        <div className="space-y-0 pb-12" role="list" aria-label="Election process steps">
+          {renderedSteps}
+        </div>
+      </section>
+    );
 });
 
 ElectionTimeline.displayName = 'ElectionTimeline';
