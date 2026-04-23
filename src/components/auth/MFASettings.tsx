@@ -10,15 +10,17 @@ export const MFASettings: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkMFA = () => {
-      setIsEnabled(isMFAEnabled());
-      setLoading(false);
-    };
-
     if (auth?.currentUser) {
-      checkMFA();
+      // Use a microtask to avoid synchronous cascading renders
+      Promise.resolve().then(() => {
+        setIsEnabled(isMFAEnabled());
+        setLoading(false);
+      });
     } else {
-      setLoading(false);
+      // Use a microtask even for the fallback to maintain consistency
+      Promise.resolve().then(() => {
+        setLoading(false);
+      });
     }
   }, []);
 
@@ -33,8 +35,10 @@ export const MFASettings: React.FC = () => {
         const factor = user.enrolledFactors[0]; // Assuming only one for now
         await unenrollPhoneMFA(factor.uid);
         setIsEnabled(false);
-      } catch (err: any) {
-        setError(err.message || 'Failed to disable MFA.');
+      } catch (err) {
+        console.error(err);
+        const message = err instanceof Error ? err.message : 'Failed to disable MFA.';
+        setError(message);
       } finally {
         setLoading(false);
       }

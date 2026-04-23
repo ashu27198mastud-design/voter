@@ -22,8 +22,8 @@ describe('civicApi utility', () => {
   describe('queryVoterInfo', () => {
     it('returns null if API key is missing', async () => {
       process.env.GOOGLE_CIVIC_API_KEY = '';
-      // Require the module here after resetting modules
-      const { queryVoterInfo } = require('@/utils/civicApi');
+      // Use dynamic import to test env var changes after module reset
+      const { queryVoterInfo } = await import('@/utils/civicApi');
       const result = await queryVoterInfo('test address');
       expect(result).toBeNull();
     });
@@ -35,7 +35,7 @@ describe('civicApi utility', () => {
         json: async () => mockData,
       });
 
-      const { queryVoterInfo } = require('@/utils/civicApi');
+      const { queryVoterInfo } = await import('@/utils/civicApi');
       const result = await queryVoterInfo('123 Main St', '2000');
       expect(result).toEqual(mockData);
       expect(fetch).toHaveBeenCalledWith(expect.stringContaining('electionId=2000'));
@@ -48,14 +48,14 @@ describe('civicApi utility', () => {
         json: async () => ({ error: 'bad request' }),
       });
 
-      const { queryVoterInfo } = require('@/utils/civicApi');
+      const { queryVoterInfo } = await import('@/utils/civicApi');
       const result = await queryVoterInfo('invalid address');
       expect(result).toBeNull();
     });
 
     it('returns null on fetch rejection', async () => {
       (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-      const { queryVoterInfo } = require('@/utils/civicApi');
+      const { queryVoterInfo } = await import('@/utils/civicApi');
       const result = await queryVoterInfo('test address');
       expect(result).toBeNull();
     });
@@ -64,7 +64,7 @@ describe('civicApi utility', () => {
   describe('queryRepresentatives', () => {
     it('returns null if API key is missing', async () => {
       process.env.GOOGLE_CIVIC_API_KEY = '';
-      const { queryRepresentatives } = require('@/utils/civicApi');
+      const { queryRepresentatives } = await import('@/utils/civicApi');
       const result = await queryRepresentatives('test address');
       expect(result).toBeNull();
     });
@@ -76,7 +76,7 @@ describe('civicApi utility', () => {
         json: async () => mockData,
       });
 
-      const { queryRepresentatives } = require('@/utils/civicApi');
+      const { queryRepresentatives } = await import('@/utils/civicApi');
       const result = await queryRepresentatives('123 Main St');
       expect(result).toEqual(mockData);
     });
@@ -87,13 +87,13 @@ describe('civicApi utility', () => {
         json: async () => ({ error: 'not found' }),
       });
 
-      const { queryRepresentatives } = require('@/utils/civicApi');
+      const { queryRepresentatives } = await import('@/utils/civicApi');
       const result = await queryRepresentatives('unknown address');
       expect(result).toBeNull();
     });
     it('returns null on fetch rejection', async () => {
       (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-      const { queryRepresentatives } = require('@/utils/civicApi');
+      const { queryRepresentatives } = await import('@/utils/civicApi');
       const result = await queryRepresentatives('test address');
       expect(result).toBeNull();
     });

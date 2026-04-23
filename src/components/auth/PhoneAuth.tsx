@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ConfirmationResult, ApplicationVerifier } from 'firebase/auth';
+import { ConfirmationResult, ApplicationVerifier, User } from 'firebase/auth';
 import { initRecaptcha, sendPhoneOtp } from '@/lib/auth';
 
 interface PhoneAuthProps {
-  onSuccess: (user: any) => void;
+  onSuccess: (user: User) => void;
   onCancel: () => void;
 }
 
@@ -19,7 +19,6 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
   const [error, setError] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   const appVerifierRef = useRef<ApplicationVerifier | null>(null);
 
   useEffect(() => {
@@ -44,9 +43,10 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
       const result = await sendPhoneOtp(formattedNumber, appVerifierRef.current);
       setConfirmationResult(result);
       setStep('OTP_INPUT');
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed to send OTP. Please try again.');
+      const message = err instanceof Error ? err.message : 'Failed to send OTP. Please try again.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -62,8 +62,10 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
     try {
       const result = await confirmationResult.confirm(otp);
       setStep('SUCCESS');
-      onSuccess(result.user);
-    } catch (err: any) {
+      if (result.user) {
+        onSuccess(result.user);
+      }
+    } catch (err) {
       console.error(err);
       setError('Invalid code. Please check and try again.');
     } finally {

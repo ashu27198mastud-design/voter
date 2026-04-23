@@ -1,6 +1,8 @@
 import { generateTimeline, getNextBestAction, getReadiness } from '../src/logic/roadmapGenerator';
 import { VoterContext } from '../src/types';
 
+import { VoterInfoResponse } from '@/services/civic';
+
 describe('Roadmap Generator Logic', () => {
   const mockContext: VoterContext = {
     voterType: 'first-time',
@@ -24,7 +26,7 @@ describe('Roadmap Generator Logic', () => {
     const pastVoterInfo = {
       election: { name: 'Past Election', electionDay: '2020-11-03' }
     };
-    const steps = generateTimeline(pastVoterInfo as any, mockContext, { country: 'US' });
+    const steps = generateTimeline(pastVoterInfo as unknown as VoterInfoResponse, mockContext, { country: 'US' });
     expect(steps[2].description).toBe('Voting period has concluded.');
   });
 

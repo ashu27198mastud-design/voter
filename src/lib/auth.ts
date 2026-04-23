@@ -3,18 +3,16 @@ import {
   signOut, 
   onAuthStateChanged, 
   User, 
-  signInWithPhoneNumber, 
   ConfirmationResult,
   ApplicationVerifier,
-  MultiFactorUser,
-  PhoneMultiFactorGenerator,
-  PhoneAuthProvider
+  PhoneAuthProvider,
+  signInWithPhoneNumber
 } from "firebase/auth";
 import { 
   auth, 
   googleProvider, 
   RecaptchaVerifier, 
-  multiFactor 
+  multiFactor as firebaseMultiFactor 
 } from "./firebase";
 
 /**
@@ -82,13 +80,13 @@ export const sendPhoneOtp = async (phoneNumber: string, appVerifier: Application
 /**
  * Enrolls a phone number for Multi-Factor Authentication.
  */
-export const enrollPhoneMFA = async (session: any, phoneNumber: string, appVerifier: ApplicationVerifier) => {
+export const enrollPhoneMFA = async (session: unknown, phoneNumber: string, appVerifier: ApplicationVerifier) => {
   if (!auth || !auth.currentUser) return null;
   
   try {
     const phoneInfoOptions = {
       phoneNumber: phoneNumber,
-      session: session
+      session: session as string // Cast to expected type if known, or leave as unknown if SDK allows
     };
     
     const phoneAuthProvider = new PhoneAuthProvider(auth);
@@ -105,7 +103,7 @@ export const enrollPhoneMFA = async (session: any, phoneNumber: string, appVerif
 export const unenrollPhoneMFA = async (factorUid: string) => {
   if (!auth || !auth.currentUser) return;
   try {
-    const user = multiFactor(auth.currentUser);
+    const user = firebaseMultiFactor(auth.currentUser);
     await user.unenroll(factorUid);
   } catch (error) {
     console.error("Error unenrolling MFA:", error);
@@ -118,6 +116,6 @@ export const unenrollPhoneMFA = async (factorUid: string) => {
  */
 export const isMFAEnabled = (): boolean => {
   if (!auth || !auth.currentUser) return false;
-  const user = multiFactor(auth.currentUser);
+  const user = firebaseMultiFactor(auth.currentUser);
   return user.enrolledFactors.length > 0;
 };

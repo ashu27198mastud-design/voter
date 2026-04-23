@@ -63,7 +63,7 @@ export const getSafeAnalytics = async (): Promise<Analytics | null> => {
   if (isConfigValid && app && typeof window !== 'undefined' && (await isSupported())) {
     try {
       return getAnalytics(app);
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -76,7 +76,7 @@ export const logFirebaseEvent = async (name: string, params?: Record<string, unk
     try {
       const { logEvent } = await import('firebase/analytics');
       logEvent(analytics, name, params);
-    } catch (e) {
+    } catch {
       // Ignore analytics errors
     }
   }
