@@ -9,12 +9,12 @@ jest.mock('@/components/ChatInterface', () => ({
 
 // Mock security/dompurify to avoid ESM transform issues in JSDOM
 jest.mock('isomorphic-dompurify', () => ({
-  sanitize: (_text: string) => _text,
+  sanitize: () => '',
 }));
 
 jest.mock('@/lib/security', () => ({
-  sanitizeInput: (_text: string) => _text,
-  validateAddress: (_text: string) => true,
+  sanitizeInput: () => '',
+  validateAddress: () => true,
 }));
 
 // Mock auth + firestore side effects

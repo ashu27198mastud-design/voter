@@ -1,32 +1,33 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import Home from '@/app/page';
 import { VoterContextSelector } from '@/components/VoterContextSelector';
+import { ElectionTimeline } from '@/components/ElectionTimeline';
 
 // Add jest-axe matchers
 expect.extend(toHaveNoViolations);
 
 // Mock security/dompurify to avoid ESM transform issues in JSDOM
 jest.mock('isomorphic-dompurify', () => ({
-  sanitize: (_text: string) => _text,
+  sanitize: () => '',
 }));
 
 jest.mock('@/lib/security', () => ({
-  sanitizeInput: (_text: string) => _text,
-  validateAddress: (_text: string) => true,
-  sanitizeHtml: (_text: string) => _text,
+  sanitizeInput: () => '',
+  validateAddress: () => true,
+  sanitizeHtml: () => '',
 }));
 
 // Mock Framer Motion
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    article: ({ children, ...props }: any) => <article {...props}>{children}</article>,
-    section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
-    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
+    div: ({ children, ...props }: unknown) => <div {...(props as object)}>{children}</div>,
+    article: ({ children, ...props }: unknown) => <article {...(props as object)}>{children}</article>,
+    section: ({ children, ...props }: unknown) => <section {...(props as object)}>{children}</section>,
+    span: ({ children, ...props }: unknown) => <span {...(props as object)}>{children}</span>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: unknown) => <>{children}</>,
 }));
 
 jest.mock('@/components/BallotBoxIcon', () => ({
@@ -107,7 +108,6 @@ describe('Deep Accessibility Audits', () => {
       }
     ];
     
-    const { ElectionTimeline } = require('@/components/ElectionTimeline');
     render(<ElectionTimeline steps={mockSteps} isVisible={true} />);
     
     expect(screen.getByRole('list')).toBeInTheDocument();
