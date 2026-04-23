@@ -15,6 +15,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<AuthStep>('PHONE_INPUT');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
@@ -35,7 +36,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
     if (!phoneNumber || !appVerifierRef.current) return;
 
     setError(null);
-    setStep('VERIFYING');
+    setIsLoading(true);
 
     try {
       // Ensure phone number has + and country code
@@ -46,7 +47,8 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to send OTP. Please try again.');
-      setStep('PHONE_INPUT');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,7 +57,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
     if (!otp || !confirmationResult) return;
 
     setError(null);
-    setStep('VERIFYING');
+    setIsLoading(true);
 
     try {
       const result = await confirmationResult.confirm(otp);
@@ -64,7 +66,8 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
     } catch (err: any) {
       console.error(err);
       setError('Invalid code. Please check and try again.');
-      setStep('OTP_INPUT');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -107,10 +110,10 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
               </div>
               <button
                 type="submit"
-                disabled={otp.length !== 6 || step === 'VERIFYING' as any}
+                disabled={otp.length !== 6 || isLoading}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
-                {step === 'VERIFYING' ? (
+                {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : 'Verify Code'}
               </button>
@@ -130,10 +133,10 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
               </div>
               <button
                 type="submit"
-                disabled={phoneNumber.length < 10 || step === 'VERIFYING' as any}
+                disabled={phoneNumber.length < 10 || isLoading}
                 className="w-full py-3 bg-gray-900 hover:bg-black disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
               >
-                {step === 'VERIFYING' ? (
+                {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : 'Send Security Code'}
               </button>
