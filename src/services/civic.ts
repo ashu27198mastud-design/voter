@@ -6,12 +6,28 @@ export interface VoterInfoResponse {
   state?: Array<{ electionAdministrationBody: { electionInfoUrl?: string; registrationInfoUrl?: string } }>;
 }
 
+export interface RepresentativesResponse {
+  offices?: Array<{
+    name: string;
+    divisionId?: string;
+    officialIndices?: number[];
+  }>;
+  officials?: Array<{
+    name: string;
+    party?: string;
+    phones?: string[];
+    urls?: string[];
+  }>;
+}
+
 /**
  * Service for interacting with Google Civic Information API via server proxy.
  */
 export async function fetchVoterInfo(address: string): Promise<VoterInfoResponse | null> {
   try {
-    const response = await fetch(`/api/civic?address=${encodeURIComponent(address)}&type=voter`);
+    const response = await fetch(
+      `/api/civic?address=${encodeURIComponent(address)}&type=voterinfo`
+    );
     if (!response.ok) throw new Error(`Civic API error: ${response.status}`);
     return await response.json();
   } catch (error) {
@@ -20,9 +36,11 @@ export async function fetchVoterInfo(address: string): Promise<VoterInfoResponse
   }
 }
 
-export async function fetchRepresentatives(address: string): Promise<any | null> {
+export async function fetchRepresentatives(address: string): Promise<RepresentativesResponse | null> {
   try {
-    const response = await fetch(`/api/civic?address=${encodeURIComponent(address)}&type=reps`);
+    const response = await fetch(
+      `/api/civic?address=${encodeURIComponent(address)}&type=representatives`
+    );
     if (!response.ok) throw new Error(`Civic API error: ${response.status}`);
     return await response.json();
   } catch (error) {
