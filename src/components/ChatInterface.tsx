@@ -165,7 +165,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                                 </div>
                               </>
                             );
-                          } catch (e) {
+                          } catch {
                             return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.text) }} />;
                           }
                         }

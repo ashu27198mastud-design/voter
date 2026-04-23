@@ -1,47 +1,53 @@
 import '@testing-library/jest-dom';
 
-// Mock DOMPurify to provide basic sanitization for tests
-jest.mock('isomorphic-dompurify', () => ({
-  sanitize: (content: string, options?: any) => {
-    if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
-      return content.replace(/<[^>]*>/g, '').trim();
-    }
-    // Basic simulation of DOMPurify behavior
-    let sanitized = content
-        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '')
-        .replace(/\s*on\w+="[^"]*"/gim, '')
-        .replace(/\s*href="javascript:[^"]*"/gim, '');
+// Mock matchMedia for Framer Motion and UI tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
 
-    return sanitized;
-  },
-  __esModule: true,
-  default: {
-    sanitize: (content: string, options?: any) => {
-      if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
-        return content.replace(/<[^>]*>/g, '').trim();
-      }
-      return content
-        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, '')
-        .replace(/\s*on\w+="[^"]*"/gim, '')
-        .replace(/\s*href="javascript:[^"]*"/gim, '');
-    }
-  }
+// Mock Next.js router
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+  usePathname: () => '/',
 }));
 
-// Mock scrollIntoView which is not implemented in JSDOM
-window.HTMLElement.prototype.scrollIntoView = jest.fn();
+// Mock DOMPurify to allow testing of sanitized HTML
+jest.mock('isomorphic-dompurify', () => ({
+  sanitize: jest.fn((dirty: string) => dirty),
+  addHook: jest.fn(),
+}));
 
-// Mock Google Maps globally
-(global as any).google = {
+// Mock Google Maps
+global.google = {
   maps: {
     places: {
-      Autocomplete: jest.fn().mockImplementation(() => ({
-        addListener: jest.fn(),
-        getPlace: jest.fn()
-      }))
+      AutocompleteService: jest.fn().mockImplementation(() => ({
+        getPlacePredictions: jest.fn(),
+      })),
+      PlacesService: jest.fn().mockImplementation(() => ({
+        getDetails: jest.fn(),
+      })),
+      PlacesServiceStatus: {
+        OK: 'OK',
+        ZERO_RESULTS: 'ZERO_RESULTS',
+      },
     },
     Geocoder: jest.fn().mockImplementation(() => ({
-      geocode: jest.fn()
-    }))
-  }
-};
+      geocode: jest.fn(),
+    })),
+  },
+} as unknown as typeof google;

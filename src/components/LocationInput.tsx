@@ -86,7 +86,6 @@ function matchAliases(raw: string): Prediction[] {
 export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const serviceNodeRef = useRef<HTMLDivElement | null>(null);

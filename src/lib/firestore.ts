@@ -19,7 +19,7 @@ export const saveUserProgress = async (userId: string, progress: Partial<UserPro
     const userRef = doc(db, "users", userId);
     const sanitizedProgress = { ...progress };
     if (sanitizedProgress.location) {
-      const { formattedAddress, ...minimalLocation } = sanitizedProgress.location;
+      const { formattedAddress: _formattedAddress, ...minimalLocation } = sanitizedProgress.location;
       sanitizedProgress.location = minimalLocation as UserLocation;
     }
 
