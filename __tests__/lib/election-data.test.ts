@@ -1,5 +1,5 @@
-import { generateTimelineFromVoterInfo, getNextBestAction, getReadinessStatus } from '../../src/lib/election-data';
-import { VoterContext } from '../../src/types';
+import { generateTimelineFromVoterInfo, getNextBestAction, getReadinessStatus } from '@/logic/roadmapGenerator';
+import { VoterContext } from '@/types';
 
 describe('Election Data Decision Engine', () => {
   const mockContext: VoterContext = {
@@ -15,13 +15,13 @@ describe('Election Data Decision Engine', () => {
   const mockVoterInfo = {
     election: { name: 'Future Election', electionDay: futureDateString },
     pollingLocations: []
-  } as any;
+  };
 
   it('generates a personalized roadmap for US voters', () => {
-    const steps = generateTimelineFromVoterInfo(mockVoterInfo, mockContext, { countryCode: 'US' });
+    const steps = generateTimelineFromVoterInfo(mockVoterInfo as unknown as { election: { name: string; electionDay: string }; pollingLocations: unknown[] }, mockContext, { countryCode: 'US' });
     expect(steps).toHaveLength(4);
     expect(steps[0].title).toBe('Eligibility & Registration');
-    expect(steps[0].status).toBe('Completed'); // Because registered
+    expect(steps[0].status).toBe('Completed');
   });
 
   it('uses global fallbacks for India (IN)', () => {
@@ -31,21 +31,21 @@ describe('Election Data Decision Engine', () => {
   });
 
   it('calculates the next best action correctly', () => {
-    const steps = generateTimelineFromVoterInfo(mockVoterInfo, { ...mockContext, registrationStatus: 'unsure' });
+    const steps = generateTimelineFromVoterInfo(mockVoterInfo as unknown as { election: { name: string; electionDay: string }; pollingLocations: unknown[] }, { ...mockContext, registrationStatus: 'unsure' });
     const nextAction = getNextBestAction(steps);
     expect(nextAction.title).toBe('Eligibility & Registration');
   });
 
   it('determines readiness status accurately', () => {
-    const status = getReadinessStatus(mockContext, mockVoterInfo);
+    const status = getReadinessStatus(mockContext, mockVoterInfo as unknown as { election: { name: string; electionDay: string } });
     expect(status.text).toContain('Ready to Vote');
   });
 
   it('detects passed elections', () => {
     const pastVoterInfo = {
         election: { name: 'Past Election', electionDay: '2000-01-01' }
-    } as any;
-    const status = getReadinessStatus(mockContext, pastVoterInfo);
+    };
+    const status = getReadinessStatus(mockContext, pastVoterInfo as unknown as { election: { name: string; electionDay: string } });
     expect(status.text).toContain('Passed');
   });
 });

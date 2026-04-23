@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/election-context/route';
 
 describe('/api/election-context', () => {
@@ -8,7 +9,7 @@ describe('/api/election-context', () => {
       body: JSON.stringify({ city: '', state: '', country: '' }),
     });
 
-    const res = await POST(req as any);
+    const res = await POST(req as unknown as NextRequest);
 
     expect(res.status).toBe(400);
   });
@@ -24,7 +25,7 @@ describe('/api/election-context', () => {
       }),
     });
 
-    const res = await POST(req as any);
+    const res = await POST(req as unknown as NextRequest);
     const json = await res.json();
 
     expect(res.status).toBe(200);
@@ -45,7 +46,7 @@ describe('/api/election-context', () => {
       }),
     });
 
-    const res = await POST(req as any);
+    const res = await POST(req as unknown as NextRequest);
     const json = await res.json();
 
     expect(res.status).toBe(200);

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface StatusBadgeProps {
   status: 'Completed' | 'In Progress' | 'Not Started';
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+export const StatusBadge: React.FC<StatusBadgeProps> = memo(({ status }) => {
   const styles = {
     'Completed': 'bg-green-100 text-green-700',
     'In Progress': 'bg-amber-100 text-amber-700',
@@ -16,4 +16,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
       {status}
     </span>
   );
-};
+});
+
+StatusBadge.displayName = 'StatusBadge';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface ContextOptionProps {
   id: string;
@@ -8,7 +8,7 @@ interface ContextOptionProps {
   onClick: () => void;
 }
 
-export const ContextOption: React.FC<ContextOptionProps> = ({
+export const ContextOption: React.FC<ContextOptionProps> = memo(({
   id,
   label,
   desc,
@@ -31,4 +31,6 @@ export const ContextOption: React.FC<ContextOptionProps> = ({
       {desc}
     </div>
   </button>
-);
+));
+
+ContextOption.displayName = 'ContextOption';

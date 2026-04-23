@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 
 interface NextActionCardProps {
@@ -6,7 +6,7 @@ interface NextActionCardProps {
   action: string;
 }
 
-export const NextActionCard: React.FC<NextActionCardProps> = ({ title, action }) => (
+export const NextActionCard: React.FC<NextActionCardProps> = memo(({ title, action }) => (
   <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden h-full">
     <div className="absolute top-0 right-0 p-4 opacity-10">
       <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
@@ -17,4 +17,6 @@ export const NextActionCard: React.FC<NextActionCardProps> = ({ title, action })
     <h3 className="text-2xl font-bold mb-2">{title}</h3>
     <p className="text-blue-100">{action}</p>
   </div>
-);
+));
+
+NextActionCard.displayName = 'NextActionCard';

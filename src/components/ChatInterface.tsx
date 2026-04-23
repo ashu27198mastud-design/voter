@@ -155,7 +155,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                               <>
                                 {cleanText && <div dangerouslySetInnerHTML={{ __html: cleanText }} className="mb-3" />}
                                 <div className="space-y-2 mt-2">
-                                  {events.map((ev: { type: string; date: string; status: string }, idx: number) => (
+                                  {events.map((ev: { type: string; date: string; status: string; event: string; description?: string }, idx: number) => (
                                     <div key={idx} className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
                                       <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">{ev.date}</div>
                                       <div className="font-bold text-gray-900">{ev.event}</div>

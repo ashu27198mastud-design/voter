@@ -1,84 +1,71 @@
-import { logger } from '../lib/logger';
-
 /**
- * RULE 1 - Google Civic Information API Integration:
- * Dedicated server-side utility to handle requests to the Google Civic Information API.
- * Securely uses process.env.GOOGLE_CIVIC_API_KEY.
+ * Utility for interacting with the Google Civic Information API.
+ * This utility is designed for server-side use to securely manage API keys.
  */
 
-const GOOGLE_CIVIC_API_URL = 'https://www.googleapis.com/civicinfo/v2';
-
-export interface CivicVoterInfoResponse {
-  election?: { name: string; electionDay: string };
-  pollingLocations?: Array<{ address: { line1: string; city: string; state: string; zip: string } }>;
-  state?: Array<{
-    electionAdministrationBody: {
-      electionInfoUrl?: string;
-      registrationInfoUrl?: string;
-    };
-  }>;
-}
-
-export interface CivicRepresentativesResponse {
-  offices?: Array<{
-    name: string;
-    divisionId?: string;
-    officialIndices?: number[];
-  }>;
-  officials?: Array<{
-    name: string;
-    party?: string;
-    phones?: string[];
-    urls?: string[];
-  }>;
-}
+const GOOGLE_CIVIC_API_KEY = process.env.GOOGLE_CIVIC_API_KEY;
+const BASE_URL = 'https://www.googleapis.com/civicinfo/v2';
 
 /**
- * Fetches voter information (polling places, election dates) for a given address.
- * DATA MINIMIZATION: Address is used only for the request and never stored.
+ * Fetches voter information for a specific address.
+ * Includes polling places, early vote sites, and ballot information.
  */
-export async function queryVoterInfo(address: string): Promise<CivicVoterInfoResponse | null> {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY || process.env.CIVIC_API_KEY;
-  if (!apiKey) {
-    logger.error('Civic API Key is missing (checked GOOGLE_CIVIC_API_KEY and CIVIC_API_KEY)');
+export async function queryVoterInfo(address: string, electionId?: string) {
+  if (!GOOGLE_CIVIC_API_KEY) {
+    console.error('GOOGLE_CIVIC_API_KEY is not defined');
     return null;
   }
 
+  const url = new URL(`${BASE_URL}/voterinfo`);
+  url.searchParams.append('key', GOOGLE_CIVIC_API_KEY);
+  url.searchParams.append('address', address);
+  if (electionId) {
+    url.searchParams.append('electionId', electionId);
+  }
+
   try {
-    const url = `${GOOGLE_CIVIC_API_URL}/voterinfo?key=${apiKey}&address=${encodeURIComponent(address)}`;
-    const response = await fetch(url);
-    
+    const response = await fetch(url.toString());
     if (!response.ok) {
-      if (response.status === 400) {
-        logger.info('Civic API: No data for address', { address });
-        return null;
-      }
-      throw new Error(`Civic API error: ${response.status}`);
+      const errorData = await response.json();
+      console.error('Google Civic API Error (voterInfo):', errorData);
+      return null;
     }
-
-    return await response.json();
+    const data = await response.json();
+    
+    // NIST Aligned Data Minimization: We return the data but do not store it.
+    // The calling function must handle the data and discard it after use.
+    return data;
   } catch (error) {
-    logger.error('Failed to query voter info', { error });
+    console.error('Fetch error (voterInfo):', error);
     return null;
   }
 }
 
 /**
- * Fetches representative information for a given address.
- * DATA MINIMIZATION: Address is discarded immediately after the request.
+ * Fetches representative information by address.
+ * Useful for finding local, state, and federal officials.
  */
-export async function queryRepresentatives(address: string): Promise<CivicRepresentativesResponse | null> {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY || process.env.CIVIC_API_KEY;
-  if (!apiKey) return null;
+export async function queryRepresentatives(address: string) {
+  if (!GOOGLE_CIVIC_API_KEY) {
+    console.error('GOOGLE_CIVIC_API_KEY is not defined');
+    return null;
+  }
+
+  const url = new URL(`${BASE_URL}/representatives`);
+  url.searchParams.append('key', GOOGLE_CIVIC_API_KEY);
+  url.searchParams.append('address', address);
 
   try {
-    const url = `${GOOGLE_CIVIC_API_URL}/representatives?key=${apiKey}&address=${encodeURIComponent(address)}`;
-    const response = await fetch(url);
-    
-    if (!response.ok) return null;
-    return await response.json();
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Google Civic API Error (representatives):', errorData);
+      return null;
+    }
+    const data = await response.json();
+    return data;
   } catch (error) {
-    logger.error('Failed to query representatives', { error });
+    console.error('Fetch error (representatives):', error);
     return null;
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { StepCard } from './StepCard';
 import { TimelineStep } from '../types';
 
@@ -14,7 +14,7 @@ interface ElectionTimelineProps {
  * Renders the sequence of election steps.
  * Uses progressive disclosure (only shows when isVisible is true).
  */
-export const ElectionTimeline: React.FC<ElectionTimelineProps> = ({ steps, isVisible }) => {
+export const ElectionTimeline: React.FC<ElectionTimelineProps> = memo(({ steps, isVisible }) => {
   // Memoize the rendered steps to prevent unnecessary re-renders of the whole list
   // when interacting with a single card.
   const renderedSteps = useMemo(() => {
@@ -40,9 +40,11 @@ export const ElectionTimeline: React.FC<ElectionTimelineProps> = ({ steps, isVis
         <p className="text-gray-600 mt-2">Follow these steps to ensure your vote is counted.</p>
       </div>
 
-      <div className="space-y-0 pb-12">
+      <div className="space-y-0 pb-12" role="list">
         {renderedSteps}
       </div>
     </section>
   );
-};
+});
+
+ElectionTimeline.displayName = 'ElectionTimeline';

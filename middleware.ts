@@ -1,8 +1,7 @@
-import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { buildCSPHeader } from '@/lib/security';
 
-export function middleware(_req: NextRequest) {
+export function middleware() {
   const response = NextResponse.next();
 
   response.headers.set('Content-Security-Policy', buildCSPHeader());

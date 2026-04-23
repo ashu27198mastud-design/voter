@@ -1,4 +1,4 @@
-import { log, logger } from '../../src/lib/logger';
+import { logger } from '../../src/lib/logger';
 
 describe('Logger: Google Cloud Structured Logging', () => {
   let consoleSpy: jest.SpyInstance;

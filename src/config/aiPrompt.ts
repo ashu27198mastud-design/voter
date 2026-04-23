@@ -1,7 +1,6 @@
 /**
- * RULE 3 - The "PromptWars" Core AI System Rules:
- * This file contains the exact System Instructions for the Google Gemini model.
- * These rules are non-negotiable and enforce neutrality and factual grounding.
+ * Configuration for the AI System Instructions (PromptWars Core Rules).
+ * This file contains the exact instructions for the @google/genai model.
  */
 
 export const AI_SYSTEM_PROMPT = `

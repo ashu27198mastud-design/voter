@@ -52,6 +52,7 @@ export const StepCard: React.FC<StepCardProps> = React.memo(({ step, index, isFi
     <article 
       className="relative pl-8 sm:pl-12 py-4 group"
       onKeyDown={handleKeyDown}
+      role="listitem"
     >
       {/* Vertical Timeline Line */}
       <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-election-blue-100 group-last:bottom-auto group-last:h-full"></div>

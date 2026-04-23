@@ -22,7 +22,7 @@ test.describe('End-to-End User Flow', () => {
     await expect(page.getByText('Registration Guidelines')).toBeVisible();
 
     // Check chat interface
-    const chatBtn = page.getByLabelText('Toggle Election Guide Chat');
+    const chatBtn = page.getByLabel('Toggle Election Guide Chat');
     await chatBtn.click();
     await expect(page.getByText('VotePath Assistant')).toBeVisible();
   });

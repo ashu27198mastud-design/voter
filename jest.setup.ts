@@ -1,4 +1,17 @@
+import 'isomorphic-fetch';
 import '@testing-library/jest-dom';
+import { toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+// Polyfill Response.json if missing (needed for Next.js 13+ tests in some Node envs)
+if (typeof Response.json !== 'function') {
+  (Response as unknown as { json: (data: unknown, init?: ResponseInit) => Response }).json = (data: unknown, init?: ResponseInit) => {
+    const response = new Response(JSON.stringify(data), init);
+    response.headers.set('Content-Type', 'application/json');
+    return response;
+  };
+}
 
 // Mock matchMedia for Framer Motion and UI tests
 Object.defineProperty(window, 'matchMedia', {
@@ -7,8 +20,8 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
@@ -23,12 +36,6 @@ jest.mock('next/navigation', () => ({
     prefetch: jest.fn(),
   }),
   usePathname: () => '/',
-}));
-
-// Mock DOMPurify to allow testing of sanitized HTML
-jest.mock('isomorphic-dompurify', () => ({
-  sanitize: jest.fn((dirty: string) => dirty),
-  addHook: jest.fn(),
 }));
 
 // Mock Google Maps

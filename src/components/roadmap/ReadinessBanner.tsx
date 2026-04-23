@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface ReadinessBannerProps {
   status: 'ready' | 'warning' | 'error';
   text: string;
 }
 
-export const ReadinessBanner: React.FC<ReadinessBannerProps> = ({ status, text }) => {
+export const ReadinessBanner: React.FC<ReadinessBannerProps> = memo(({ status, text }) => {
   const themes = {
     ready: 'bg-green-50 border-green-100 text-green-800 icon-bg-green-500',
     warning: 'bg-amber-50 border-amber-100 text-amber-800 icon-bg-amber-500',
@@ -16,7 +16,11 @@ export const ReadinessBanner: React.FC<ReadinessBannerProps> = ({ status, text }
   const [bgClass, borderClass, textClass, iconClass] = theme.split(' ');
 
   return (
-    <div className={`rounded-3xl p-8 shadow-lg border-2 flex flex-col justify-center items-center text-center h-full ${bgClass} ${borderClass} ${textClass}`}>
+    <div 
+      className={`rounded-3xl p-8 shadow-lg border-2 flex flex-col justify-center items-center text-center h-full ${bgClass} ${borderClass} ${textClass}`}
+      role="status"
+      aria-live="polite"
+    >
       <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white ${iconClass.replace('icon-bg-', 'bg-')}`}>
         {status === 'ready' ? (
           <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
@@ -28,4 +32,6 @@ export const ReadinessBanner: React.FC<ReadinessBannerProps> = ({ status, text }
       <p className="opacity-70 mt-1">Based on your provided context</p>
     </div>
   );
-};
+});
+
+ReadinessBanner.displayName = 'ReadinessBanner';
