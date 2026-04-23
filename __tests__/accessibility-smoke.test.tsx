@@ -13,7 +13,6 @@ jest.mock('isomorphic-dompurify', () => ({
   addHook: jest.fn(),
 }));
 
-
 // Mock auth + firestore side effects
 jest.mock('@/lib/auth', () => ({
   subscribeToAuthChanges: jest.fn((callback) => {
