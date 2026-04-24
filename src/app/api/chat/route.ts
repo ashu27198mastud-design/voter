@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
     try {
       const model = genAI.getGenerativeModel({ 
         model: 'gemini-flash-latest',
-        tools: [{ googleSearchRetrieval: {} }] as any
+        tools: [{ googleSearch: {} }] as any
       });
       const result = await model.generateContent(fullPrompt);
       const responseText = result.response.text();
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
       try {
         const model = genAI.getGenerativeModel({ 
           model: 'gemini-pro-latest',
-          tools: [{ googleSearchRetrieval: {} }] as any
+          tools: [{ googleSearch: {} }] as any
         });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
