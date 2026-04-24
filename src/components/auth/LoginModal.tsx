@@ -48,9 +48,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess, onCancel }) =
 
           <div className="space-y-4">
             <button
+              type="button"
               onClick={handleGoogleLogin}
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-700 hover:bg-gray-50 hover:border-blue-100 transition-all active:scale-95 shadow-sm"
+              aria-label="Continue with Google"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -71,9 +73,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess, onCancel }) =
             </div>
 
             <button
+              type="button"
               onClick={() => setShowPhoneAuth(true)}
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all active:scale-95 shadow-xl"
+              aria-label="Continue with Phone"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -83,6 +87,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess, onCancel }) =
           </div>
 
           <button
+            type="button"
             onClick={onCancel}
             className="w-full text-center text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors"
           >

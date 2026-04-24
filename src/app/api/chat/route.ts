@@ -9,6 +9,7 @@ import { sanitizeHtml } from '@/lib/security';
 import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';
+import { normalizeLocationQuery, isLocationLikeQuery } from '@/lib/locationIntelligence';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -104,8 +105,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid location' }, { status: 400 });
     }
 
-    const query = parsedQuery.data.query;
-    const location = parsedLocation?.success ? parsedLocation.data : null;
+    let query = parsedQuery.data.query;
+    let location = parsedLocation?.success ? parsedLocation.data : null;
+
+    // Smart location normalization: If query is just a location name, use it as context
+    if (isLocationLikeQuery(query)) {
+      const normalized = normalizeLocationQuery(query);
+      if (normalized && !location) {
+        location = normalized;
+        query = `What is the election process in ${normalized.city}, ${normalized.state}, ${normalized.country}?`;
+      }
+    }
 
     let grounding = '';
     if (location) {
@@ -174,22 +184,39 @@ export async function POST(req: NextRequest) {
             response: sanitizeHtml(`
 **Election Information for ${ctx.location}**
 
-I'm currently specialized in processing registry data. Based on verified civic records for your region:
+I am currently experiencing a service interruption with my primary AI engine, but I can provide you with verified registry data for your location:
 
 - **Process**: ${ctx.officialGuidance}
-- **Requirements**: ${ctx.requiredDocuments.join(', ')}
-- **Next Steps**: ${ctx.keySteps.join(' → ')}
+- **Required Documents**: ${ctx.requiredDocuments.join(', ')}
+- **Key Steps**: ${ctx.keySteps.join(' → ')}
 
-${ctx.verifiedUpdates.length > 0 ? `*Note: ${ctx.verifiedUpdates[0]}*` : ''}
+${ctx.verifiedUpdates.length > 0 ? `*Verification Note: ${ctx.verifiedUpdates[0]}*` : ''}
 
-Please refer to your personalized roadmap below for the full sequence of actions.
+Please use your personalized roadmap below for a full step-by-step guide.
             `),
           });
         }
 
+        // Global smart fallback if no specific context exists
+        const region = location ? `${location.city}, ${location.state}, ${location.country}` : 'your region';
         return NextResponse.json({
-          response:
-            'VotePath Assistant is currently offline for scheduled maintenance. Please use the roadmap steps below for immediate guidance.',
+          response: sanitizeHtml(`
+**Direct answer**
+I am currently operating in verified data mode for ${region}.
+
+**Key information**
+- Voter registration and polling details vary by local authority.
+- Always verify your status on the official Election Commission or government portal.
+- Ensure you have a valid government-issued photo ID.
+
+**What you should do next**
+1. Search for "Official election authority [Your City/State]"
+2. Visit the voter registration portal for ${region}.
+3. Confirm registration deadlines and polling dates.
+
+**Verification note**
+Please verify all information through official government channels to ensure you have the most current dates and locations.
+          `),
         });
       }
     }

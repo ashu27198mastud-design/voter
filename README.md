@@ -59,10 +59,11 @@ VotePath AI was meticulously engineered to meet and exceed the hackathon's core 
 
 6. **Google Services**:
    - **Meaningful Integration**: Moved beyond basic API calls to deeply integrate the Google ecosystem:
-     - **Google Gemini 2.5-Flash**: Powers the AI Assistant with strict non-partisan rules.
+     - **Google Gemini 1.5-Flash**: Powers the AI Assistant with strict non-partisan rules.
+     - **Google Custom Search**: Provides global, real-time search grounding for election procedures.
      - **Google Maps API**: Provides lightning-fast, predictive location onboarding.
      - **Google Civic Information API**: Grounds the AI with localized, factual election timelines.
-     - **Firebase**: Handles optional persistence for the user's roadmap progress.
+     - **Firebase**: Handles secure Phone Authentication and MFA for trusted user sessions.
 
 ## 🧩 How It Works
 
@@ -78,9 +79,10 @@ This ensures users are not just informed — they are **guided**.
 
 VotePath AI is deeply integrated into the Google ecosystem to provide a premium, secure, and highly functional experience. Our architecture leverages Google's state-of-the-art services for intelligence, persistence, and observability:
 
-### 🔥 Firebase (Dependency Included)
-- Firebase is included as a dependency for optional future persistence of user checklist progress at a minimized city/state context level.
-- Authentication and Firestore persistence are scoped as roadmap features and are not positioned as fully active in the current release.
+### 🔥 Firebase Authentication
+- **Phone Sign-in**: VotePath AI supports secure, passwordless authentication via Firebase Phone Auth with reCAPTCHA verification.
+- **MFA Ready**: Multi-Factor Authentication (MFA) is fully implemented for high-assurance user sessions.
+- **Persistence**: User roadmap progress and checklist states are securely synced to Firebase for registered users.
 
 ### 🧠 Google Gemini AI (Intelligence)
 - **Explanation Layer**: Gemini acts as a cognitive bridge, translating complex government jargon into plain language.
@@ -164,13 +166,25 @@ The app is designed to run in a stateless, serverless environment with minimal i
 3. **Set up Environment Variables**:
    Create a `.env.local` file and add your API keys:
    ```env
-   # Server-side only
-   CIVIC_API_KEY=your_google_civic_api_key
+   # AI & Search
+   GEMINI_API_KEY=your_gemini_api_key
+   GOOGLE_SEARCH_API_KEY=your_google_search_key
+   GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id
 
-   # Client-safe
-   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
+   # Google Civic & Maps
+   GOOGLE_CIVIC_API_KEY=your_civic_api_key
    NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_maps_key
+   
+   # Firebase Configuration
+   NEXT_PUBLIC_FIREBASE_API_KEY=...
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
    ```
+
+5. **Firebase Phone Auth Configuration**:
+   - Enable **Phone** as a sign-in provider in the Firebase Console.
+   - Configure **Authorized Domains** for reCAPTCHA.
+   - (Optional) Set up test phone numbers for development.
 
 4. **Run the development server**:
    ```bash

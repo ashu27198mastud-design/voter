@@ -114,7 +114,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
         console.error("Chat error:", err);
         const errorMsg: ChatMessage = {
             id: `error-${Date.now()}`,
-            text: "I cannot process that question right now. Please ensure it is related to the election process.",
+            text: "I am having trouble connecting to my knowledge base right now. For immediate guidance, please refer to your personalized roadmap or verify your status on your local official election commission portal.",
             sender: 'ai',
             timestamp: Date.now()
         };
