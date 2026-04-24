@@ -29,6 +29,11 @@ export async function askElectionQuestion(
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get AI response', { query, error: message });
+    
+    if (message.includes('AI Service Error')) {
+      return `The assistant is currently experiencing a technical issue (${message}). Please try again in a moment or refer to your personalized roadmap below.`;
+    }
+    
     return "I am having trouble connecting to my knowledge base right now. For immediate guidance, please refer to your personalized roadmap or verify your status on your local official election commission portal.";
   }
 }

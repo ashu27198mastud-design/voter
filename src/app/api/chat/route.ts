@@ -164,15 +164,22 @@ export async function POST(req: NextRequest) {
     try {
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const result = await model.generateContent(fullPrompt);
-      return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-    } catch {
+      const responseText = result.response.text();
+      
+      if (!responseText) {
+        throw new Error('Empty response from Gemini');
+      }
+      
+      return NextResponse.json({ response: sanitizeHtml(responseText) });
+    } catch (err: any) {
+      logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: err.message });
       // Fallback 1: Gemini Pro
       try {
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-      } catch {
-        logger.error('All Gemini and PaLM models failed. Using verified context fallback.');
+      } catch (err: any) {
+        logger.error('All Gemini models failed', { error: err.message });
 
         // If we have a verified context (ctx), generate a helpful static response
         const ctx = location
