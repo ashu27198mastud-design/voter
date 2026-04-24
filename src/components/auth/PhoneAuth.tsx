@@ -91,7 +91,11 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg animate-in fade-in slide-in-from-top-2">
+          <div 
+            role="alert" 
+            aria-live="assertive"
+            className="p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg animate-in fade-in slide-in-from-top-2"
+          >
             {error}
           </div>
         )}
@@ -100,7 +104,9 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
           {step === 'OTP_INPUT' ? (
             <div className="space-y-4">
               <div className="flex justify-center gap-2">
+                <label htmlFor="otp-code" className="sr-only">One-time verification code</label>
                 <input
+                  id="otp-code"
                   type="text"
                   maxLength={6}
                   value={otp}
@@ -116,15 +122,20 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true"></div>
+                    <span className="sr-only">Verifying code...</span>
+                  </>
                 ) : 'Verify Code'}
               </button>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">+</span>
+                <label htmlFor="phone-number" className="sr-only">Phone number</label>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium" aria-hidden="true">+</span>
                 <input
+                  id="phone-number"
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value.replace(/[^\d+]/g, ''))}
@@ -139,7 +150,10 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
                 className="w-full py-3 bg-gray-900 hover:bg-black disabled:bg-gray-300 text-white font-semibold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true"></div>
+                    <span className="sr-only">Sending security code...</span>
+                  </>
                 ) : 'Send Security Code'}
               </button>
             </div>
@@ -147,6 +161,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
         </form>
 
         <button
+          type="button"
           onClick={onCancel}
           className="w-full py-2 text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
         >

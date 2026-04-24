@@ -102,7 +102,9 @@ export const MFAEnrollmentModal: React.FC<MFAEnrollmentModalProps> = ({ onSucces
                   </p>
                 </div>
                 <button 
+                  type="button"
                   onClick={onCancel}
+                  aria-label="Close modal"
                   className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,7 +114,11 @@ export const MFAEnrollmentModal: React.FC<MFAEnrollmentModalProps> = ({ onSucces
               </div>
 
               {error && (
-                <div className="p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-xl flex items-center gap-2">
+                <div 
+                  role="alert"
+                  aria-live="assertive"
+                  className="p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-xl flex items-center gap-2"
+                >
                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                    </svg>
@@ -122,26 +128,34 @@ export const MFAEnrollmentModal: React.FC<MFAEnrollmentModalProps> = ({ onSucces
 
               <form onSubmit={step === 'OTP_INPUT' ? handleVerifyOtp : handleSendOtp} className="space-y-4">
                 {step === 'OTP_INPUT' ? (
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Enter 6-digit code"
-                    className="w-full px-5 py-4 text-center text-3xl tracking-[0.5em] font-mono border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all bg-gray-50 focus:bg-white"
-                    autoFocus
-                  />
-                ) : (
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">+</span>
+                  <div className="space-y-2">
+                    <label htmlFor="mfa-otp-code" className="sr-only">Verification code</label>
                     <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value.replace(/[^\d+]/g, ''))}
-                      placeholder="Country Code + Phone"
-                      className="w-full pl-8 pr-4 py-4 border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg bg-gray-50 focus:bg-white"
+                      id="mfa-otp-code"
+                      type="text"
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      placeholder="Enter 6-digit code"
+                      className="w-full px-5 py-4 text-center text-3xl tracking-[0.5em] font-mono border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all bg-gray-50 focus:bg-white"
                       autoFocus
                     />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label htmlFor="mfa-phone-number" className="sr-only">Phone number for MFA</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg" aria-hidden="true">+</span>
+                      <input
+                        id="mfa-phone-number"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^\d+]/g, ''))}
+                        placeholder="Country Code + Phone"
+                        className="w-full pl-8 pr-4 py-4 border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg bg-gray-50 focus:bg-white"
+                        autoFocus
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -151,7 +165,10 @@ export const MFAEnrollmentModal: React.FC<MFAEnrollmentModalProps> = ({ onSucces
                   className="w-full py-4 bg-gray-900 hover:bg-black disabled:bg-gray-200 text-white font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-lg"
                 >
                   {isLoading ? (
-                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <>
+                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true"></div>
+                      <span className="sr-only">Processing...</span>
+                    </>
                   ) : step === 'OTP_INPUT' ? 'Enable Security' : 'Send Code'}
                 </button>
               </form>
