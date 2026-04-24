@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MFASettings } from '../components/auth/MFASettings';
 import * as authService from '../lib/auth';
-import { auth, multiFactor } from '../lib/firebase';
+import { multiFactor } from '../lib/firebase';
 
 // Mock the services
 jest.mock('../lib/auth', () => ({

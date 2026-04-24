@@ -218,7 +218,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       setError('Maps service is still loading. Please wait a moment and try again.');
       initServices(); // Try to re-init
     }
-  }, [normalizeAndSubmit, initServices]);
+  }, [normalizeAndSubmit, initServices, onLocationSubmit]);
 
   const selectPrediction = useCallback((pred: Prediction) => {
     closeDropdown();
@@ -252,7 +252,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         }
       });
     }
-  }, [closeDropdown, geocodeAndSubmit, normalizeAndSubmit]);
+  }, [closeDropdown, geocodeAndSubmit, normalizeAndSubmit, onLocationSubmit]);
 
   const fetchPredictions = useCallback((raw: string) => {
     const trimmed = raw.trim();
