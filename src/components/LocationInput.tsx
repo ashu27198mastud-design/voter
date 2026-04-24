@@ -41,6 +41,15 @@ const ALIASES: Readonly<Record<string, string>> = {
   tok: 'Tokyo',
 };
 
+const ALIAS_LOCATION_DATA: Readonly<Record<string, { city: string; state: string; country: string }>> = {
+  'Mumbai': { city: 'Mumbai', state: 'MH', country: 'IN' },
+  'Bengaluru': { city: 'Bengaluru', state: 'KA', country: 'IN' },
+  'New Delhi': { city: 'New Delhi', state: 'DL', country: 'IN' },
+  'New York City': { city: 'New York City', state: 'NY', country: 'US' },
+  'San Francisco': { city: 'San Francisco', state: 'CA', country: 'US' },
+  'London': { city: 'London', state: 'ENG', country: 'GB' },
+};
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -197,6 +206,14 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
           setError('Could not verify this location. Please be more specific.');
         }
       });
+    } else if (ALIAS_LOCATION_DATA[address]) {
+      const data = ALIAS_LOCATION_DATA[address];
+      onLocationSubmit({
+        city: data.city,
+        state: data.state,
+        country: data.country,
+        formattedAddress: address
+      });
     } else {
       setError('Maps service is still loading. Please wait a moment and try again.');
       initServices(); // Try to re-init
@@ -206,6 +223,19 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   const selectPrediction = useCallback((pred: Prediction) => {
     closeDropdown();
     setInputValue(pred.description);
+
+    // Bypassing geocoder for known aliases to provide instant response & fallback
+    if (pred.isAlias && ALIAS_LOCATION_DATA[pred.description]) {
+      const data = ALIAS_LOCATION_DATA[pred.description];
+      onLocationSubmit({
+        city: data.city,
+        state: data.state,
+        country: data.country,
+        formattedAddress: pred.description
+      });
+      return;
+    }
+
     if (pred.isAlias) {
       geocodeAndSubmit(pred.description);
     } else {
