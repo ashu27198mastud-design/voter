@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
       const result = await model.generateContent(fullPrompt);
       const responseText = result.response.text();
       
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
       logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: err.message });
       // Fallback 1: Gemini Pro
       try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro-latest' });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
       } catch (err: any) {
