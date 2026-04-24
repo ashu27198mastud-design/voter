@@ -188,15 +188,20 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   const geocodeAndSubmit = useCallback((address: string) => {
     if (window.google?.maps?.Geocoder) {
       const geocoder = new window.google.maps.Geocoder();
+      setIsLoading(true);
       geocoder.geocode({ address }, (results, status) => {
+        setIsLoading(false);
         if (status === 'OK' && results?.[0]) {
           normalizeAndSubmit(results[0].address_components, results[0].formatted_address);
         } else {
           setError('Could not verify this location. Please be more specific.');
         }
       });
+    } else {
+      setError('Maps service is still loading. Please wait a moment and try again.');
+      initServices(); // Try to re-init
     }
-  }, [normalizeAndSubmit]);
+  }, [normalizeAndSubmit, initServices]);
 
   const selectPrediction = useCallback((pred: Prediction) => {
     closeDropdown();

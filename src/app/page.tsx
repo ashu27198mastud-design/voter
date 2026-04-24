@@ -27,7 +27,7 @@ const ChatInterface = dynamic(() => import('@/components/ChatInterface').then(mo
 });
 
 export default function Home() {
-  const { location, setLocation, isLoading, voterInfo, fetchDataForLocation } = useElectionData();
+  const { location, setLocation, isLoading, error, voterInfo, fetchDataForLocation } = useElectionData();
   const [voterContext, setVoterContext] = useState<VoterContext | null>(null);
   const [showContextSelector, setShowContextSelector] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
@@ -84,9 +84,18 @@ export default function Home() {
 
   // Handlers
   const handleLocationSubmit = useCallback(async (loc: UserLocation) => {
-    await fetchDataForLocation(loc);
+    // Transition UI immediately to prevent "stuck" feeling
     setShowContextSelector(true);
-  }, [fetchDataForLocation]);
+    setLocation(loc);
+    
+    // Fetch data in background
+    try {
+      await fetchDataForLocation(loc);
+    } catch (error) {
+      console.error('Background data fetch failed:', error);
+      // We don't block here because the AI fallback will handle missing data
+    }
+  }, [fetchDataForLocation, setLocation]);
 
   const handleContextComplete = useCallback((context: VoterContext) => {
     setVoterContext(context);
@@ -157,10 +166,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Context Selector Step */}
       <AnimatePresence>
         {showContextSelector && (
-          <VoterContextSelector onComplete={handleContextComplete} />
+          <>
+            {/* Global Error Notice (if civic data fetch failed) */}
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="w-full max-w-lg mb-6 bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-start gap-3"
+              >
+                <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-amber-800">
+                  <strong>Limited coverage:</strong> We're providing general guidance for this region while official registry data is being synchronized.
+                </p>
+              </motion.div>
+            )}
+            <VoterContextSelector onComplete={handleContextComplete} />
+          </>
         )}
       </AnimatePresence>
 
