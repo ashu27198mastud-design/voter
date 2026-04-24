@@ -180,7 +180,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-sm text-amber-800">
-                  <strong>Limited coverage:</strong> We're providing general guidance for this region while official registry data is being synchronized.
+                  <strong>Limited coverage:</strong> We&apos;re providing general guidance for this region while official registry data is being synchronized.
                 </p>
               </motion.div>
             )}
