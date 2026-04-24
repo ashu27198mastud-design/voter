@@ -141,13 +141,13 @@ export async function POST(req: NextRequest) {
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-      } catch (e1) {
+      } catch {
         // Fallback 2: Legacy PaLM (if key is old)
         try {
           const model = genAI.getGenerativeModel({ model: 'text-bison-001' });
           const result = await model.generateContent(fullPrompt);
           return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-        } catch (e2) {
+        } catch {
           logger.error('All Gemini and PaLM models failed with 404. Key may be restricted or project needs billing.', {
             error: error instanceof Error ? error.message : String(error)
           });
