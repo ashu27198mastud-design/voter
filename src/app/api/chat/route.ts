@@ -130,36 +130,31 @@ export async function POST(req: NextRequest) {
       .join('\n\n');
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const primaryModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
+    
     try {
-      const result = await primaryModel.generateContent(fullPrompt);
-      const text = result.response.text();
-      return NextResponse.json({ response: sanitizeHtml(text) });
-    } catch (primaryError: unknown) {
-      logger.error('Primary Gemini call failed', {
-        error:
-          primaryError instanceof Error ? primaryError.message : String(primaryError),
-      });
-
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent(fullPrompt);
+      return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
+    } catch (error: unknown) {
+      // Fallback 1: Gemini Pro
       try {
-        const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const fallbackResult = await fallbackModel.generateContent(fullPrompt);
-        return NextResponse.json({
-          response: sanitizeHtml(fallbackResult.response.text()),
-        });
-      } catch (fallbackError: unknown) {
-        logger.error('Fallback Gemini call failed', {
-          error:
-            fallbackError instanceof Error
-              ? fallbackError.message
-              : String(fallbackError),
-        });
-
-        return NextResponse.json({
-          response:
-            "I'm having trouble connecting to my knowledge base. Please try again in a moment.",
-        });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const result = await model.generateContent(fullPrompt);
+        return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
+      } catch (e1) {
+        // Fallback 2: Legacy PaLM (if key is old)
+        try {
+          const model = genAI.getGenerativeModel({ model: 'text-bison-001' });
+          const result = await model.generateContent(fullPrompt);
+          return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
+        } catch (e2) {
+          logger.error('All Gemini and PaLM models failed with 404. Key may be restricted or project needs billing.', {
+            error: error instanceof Error ? error.message : String(error)
+          });
+          return NextResponse.json({
+            response: "VotePath Assistant is currently offline for scheduled maintenance. Please use the roadmap steps below.",
+          });
+        }
       }
     }
   } catch (error: unknown) {

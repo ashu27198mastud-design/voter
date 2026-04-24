@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { User } from 'firebase/auth';
 import { signInWithGoogle, logOut, subscribeToAuthChanges } from '../lib/auth';
 
@@ -43,10 +44,13 @@ export const UserMenu: React.FC = () => {
             <p className="text-sm font-bold text-gray-900">{user.displayName?.split(' ')[0]}</p>
           </div>
           <div className="relative group">
-            <img 
+            <Image 
               src={user.photoURL || ''} 
               alt={user.displayName || 'User'} 
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full border-2 border-white shadow-sm ring-2 ring-blue-50 transition-transform group-hover:scale-105"
+              unoptimized // Firebase photo URLs are external and variable
             />
             <button 
               onClick={handleLogout}

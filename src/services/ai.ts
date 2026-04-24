@@ -18,6 +18,9 @@ export async function askElectionQuestion(
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return "I'm currently specialized in US election procedures. While I can't find specific local data for your region yet, I can help you with general information about voting steps and civic duties. What would you like to know?";
+      }
       throw new Error(`AI Service Error: ${response.status}`);
     }
 
@@ -26,6 +29,6 @@ export async function askElectionQuestion(
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get AI response', { query, error: message });
-    return 'The VotePath Assistant is temporarily offline. Please follow the steps in your personalized roadmap.';
+    return 'The VotePath Assistant is currently processing a high volume of requests. Please follow the steps in your personalized roadmap below for immediate guidance.';
   }
 }

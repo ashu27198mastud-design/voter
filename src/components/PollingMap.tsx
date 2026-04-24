@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface PollingMapProps {
   address: {
@@ -22,11 +23,14 @@ export const PollingMap: React.FC<PollingMapProps> = ({ address }) => {
 
   return (
     <div className="mt-4 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50 aspect-video relative">
-      <img 
+      <Image 
         src={mapUrl} 
         alt={`Map showing polling location at ${fullAddress}`}
+        width={600}
+        height={300}
         className="w-full h-full object-cover"
         loading="lazy"
+        unoptimized // Static Maps API URLs are already optimized/transformed
       />
       <div className="absolute bottom-3 right-3">
         <a 
