@@ -29,6 +29,6 @@ export async function askElectionQuestion(
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get AI response', { query, error: message });
-    return 'The VotePath Assistant is currently processing a high volume of requests. Please follow the steps in your personalized roadmap below for immediate guidance.';
+    return "I am having trouble connecting to my knowledge base right now. For immediate guidance, please refer to your personalized roadmap or verify your status on your local official election commission portal.";
   }
 }
