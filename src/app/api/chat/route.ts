@@ -8,6 +8,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { sanitizeHtml } from '@/lib/security';
 import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
+import { searchElectionSources } from '@/services/searchGrounding';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -120,9 +121,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // New logic: Trigger search grounding if context is missing or specific intent is detected
+    let searchGroundingContent = '';
+    const needsSearch = 
+      !grounding || 
+      /current|latest|status|deadline|registration|polling|how to|where is/i.test(query) ||
+      (location && query.toLowerCase().includes(location.city.toLowerCase()));
+
+    if (needsSearch) {
+      try {
+        const searchResults = await searchElectionSources(query, location as { city: string; state: string; country: string } | undefined);
+        if (searchResults.length > 0) {
+          searchGroundingContent = `SEARCH_GROUNDING:\n${searchResults.map(r => `[${r.title}]\n${r.snippet}\nSource: ${r.link}`).join('\n\n')}`;
+        }
+      } catch (err) {
+        logger.error('Search grounding failed during chat', { error: String(err) });
+      }
+    }
+
     const fullPrompt = [
       `SYSTEM INSTRUCTIONS: ${AI_SYSTEM_PROMPT}`,
       grounding,
+      searchGroundingContent,
       `RESPONSE FORMAT: ${RESPONSE_FORMAT}`,
       `USER QUESTION: ${query}`,
     ]
