@@ -79,20 +79,41 @@ export const sendPhoneOtp = async (phoneNumber: string, appVerifier: Application
 
 /**
  * Enrolls a phone number for Multi-Factor Authentication.
+ * Phase 1: Verify phone number and get verification ID
  */
-export const enrollPhoneMFA = async (session: unknown, phoneNumber: string, appVerifier: ApplicationVerifier) => {
-  if (!auth || !auth.currentUser) return null;
+export const startMfaEnrollment = async (phoneNumber: string, appVerifier: ApplicationVerifier) => {
+  if (!auth || !auth.currentUser) throw new Error("No user logged in");
   
   try {
+    const user = firebaseMultiFactor(auth.currentUser);
+    const session = await user.getSession();
+    
     const phoneInfoOptions = {
-      phoneNumber: phoneNumber,
-      session: session as string // Cast to expected type if known, or leave as unknown if SDK allows
+      phoneNumber,
+      session
     };
     
     const phoneAuthProvider = new PhoneAuthProvider(auth);
     return await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, appVerifier);
   } catch (error) {
-    console.error("Error enrolling MFA:", error);
+    console.error("Error starting MFA enrollment:", error);
+    throw error;
+  }
+};
+
+/**
+ * Enrolls a phone number for Multi-Factor Authentication.
+ * Phase 2: Confirm verification code
+ */
+export const finishMfaEnrollment = async (verificationId: string, verificationCode: string, label: string = "Primary Phone") => {
+  if (!auth || !auth.currentUser) throw new Error("No user logged in");
+  
+  try {
+    const user = firebaseMultiFactor(auth.currentUser);
+    const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
+    await user.enroll(credential, label);
+  } catch (error) {
+    console.error("Error finishing MFA enrollment:", error);
     throw error;
   }
 };

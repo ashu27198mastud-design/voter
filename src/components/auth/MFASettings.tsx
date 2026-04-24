@@ -2,25 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { auth, multiFactor } from '@/lib/firebase';
-import { isMFAEnabled, unenrollPhoneMFA } from '@/lib/auth';
+import { unenrollPhoneMFA } from '@/lib/auth';
+import { MFAEnrollmentModal } from './MFAEnrollmentModal';
 
 export const MFASettings: React.FC = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEnrollment, setShowEnrollment] = useState(false);
 
   useEffect(() => {
     if (auth?.currentUser) {
-      // Use a microtask to avoid synchronous cascading renders
-      Promise.resolve().then(() => {
-        setIsEnabled(isMFAEnabled());
-        setLoading(false);
-      });
+      const user = multiFactor(auth.currentUser);
+      setIsEnabled(user.enrolledFactors.length > 0);
+      setLoading(false);
     } else {
-      // Use a microtask even for the fallback to maintain consistency
-      Promise.resolve().then(() => {
-        setLoading(false);
-      });
+      setLoading(false);
     }
   }, []);
 
@@ -32,7 +29,7 @@ export const MFASettings: React.FC = () => {
       setLoading(true);
       try {
         const user = multiFactor(auth!.currentUser!);
-        const factor = user.enrolledFactors[0]; // Assuming only one for now
+        const factor = user.enrolledFactors[0]; 
         await unenrollPhoneMFA(factor.uid);
         setIsEnabled(false);
       } catch (err) {
@@ -43,9 +40,13 @@ export const MFASettings: React.FC = () => {
         setLoading(false);
       }
     } else {
-      // Direct user to enrollment flow (PhoneAuth component would be used here in a real app)
-      alert('To enable MFA, please use the "Sign in with Phone" flow or we will implement the enrollment modal in the next step.');
+      setShowEnrollment(true);
     }
+  };
+
+  const handleEnrollmentSuccess = () => {
+    setShowEnrollment(false);
+    setIsEnabled(true);
   };
 
   if (loading) return <div className="h-20 animate-pulse bg-gray-50 rounded-xl"></div>;
@@ -70,6 +71,7 @@ export const MFASettings: React.FC = () => {
         <button
           onClick={handleToggle}
           disabled={loading}
+          aria-label="Toggle Two-Factor Authentication"
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ${
             isEnabled ? 'bg-blue-600' : 'bg-gray-200'
           }`}
@@ -101,6 +103,13 @@ export const MFASettings: React.FC = () => {
             <p className="text-[11px] text-blue-700">MFA helps protect your voting data from unauthorized access.</p>
           </div>
         </div>
+      )}
+
+      {showEnrollment && (
+        <MFAEnrollmentModal 
+          onSuccess={handleEnrollmentSuccess} 
+          onCancel={() => setShowEnrollment(false)} 
+        />
       )}
     </div>
   );
