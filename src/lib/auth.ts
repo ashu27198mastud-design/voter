@@ -6,7 +6,8 @@ import {
   ConfirmationResult,
   ApplicationVerifier,
   PhoneAuthProvider,
-  signInWithPhoneNumber
+  signInWithPhoneNumber,
+  PhoneMultiFactorGenerator
 } from "firebase/auth";
 import { 
   auth, 
@@ -111,7 +112,8 @@ export const finishMfaEnrollment = async (verificationId: string, verificationCo
   try {
     const user = firebaseMultiFactor(auth.currentUser);
     const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
-    await user.enroll(credential, label);
+    const assertion = PhoneMultiFactorGenerator.assertion(credential);
+    await user.enroll(assertion, label);
   } catch (error) {
     console.error("Error finishing MFA enrollment:", error);
     throw error;
