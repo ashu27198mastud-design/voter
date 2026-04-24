@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PhoneAuth } from '../components/auth/PhoneAuth';
 import * as authService from '../lib/auth';
