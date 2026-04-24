@@ -135,26 +135,42 @@ export async function POST(req: NextRequest) {
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const result = await model.generateContent(fullPrompt);
       return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-    } catch (error: unknown) {
+    } catch {
       // Fallback 1: Gemini Pro
       try {
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
       } catch {
-        // Fallback 2: Legacy PaLM (if key is old)
-        try {
-          const model = genAI.getGenerativeModel({ model: 'text-bison-001' });
-          const result = await model.generateContent(fullPrompt);
-          return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-        } catch {
-          logger.error('All Gemini and PaLM models failed with 404. Key may be restricted or project needs billing.', {
-            error: error instanceof Error ? error.message : String(error)
-          });
+        logger.error('All Gemini and PaLM models failed. Using verified context fallback.');
+
+        // If we have a verified context (ctx), generate a helpful static response
+        const ctx = location
+          ? await fetchElectionContext(req, location.city, location.state, location.country)
+          : null;
+
+        if (ctx && ctx.hasOfficialData) {
           return NextResponse.json({
-            response: "VotePath Assistant is currently offline for scheduled maintenance. Please use the roadmap steps below.",
+            response: sanitizeHtml(`
+**Election Information for ${ctx.location}**
+
+I'm currently specialized in processing registry data. Based on verified civic records for your region:
+
+- **Process**: ${ctx.officialGuidance}
+- **Requirements**: ${ctx.requiredDocuments.join(', ')}
+- **Next Steps**: ${ctx.keySteps.join(' → ')}
+
+${ctx.verifiedUpdates.length > 0 ? `*Note: ${ctx.verifiedUpdates[0]}*` : ''}
+
+Please refer to your personalized roadmap below for the full sequence of actions.
+            `),
           });
         }
+
+        return NextResponse.json({
+          response:
+            'VotePath Assistant is currently offline for scheduled maintenance. Please use the roadmap steps below for immediate guidance.',
+        });
       }
     }
   } catch (error: unknown) {
@@ -162,9 +178,6 @@ export async function POST(req: NextRequest) {
       error: error instanceof Error ? error.message : String(error),
     });
 
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
