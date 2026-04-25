@@ -81,6 +81,20 @@ describe('civicApi utility', () => {
       expect(result).toEqual(mockData);
     });
 
+    it('successfully fetches representatives with levels and roles', async () => {
+      const mockData = { officials: [{ name: 'Jane Doe' }] };
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockData,
+      });
+
+      const { queryRepresentatives } = await import('@/utils/civicApi');
+      const result = await queryRepresentatives('123 Main St', ['administrativeArea1'], ['legislatorUpperBody']);
+      expect(result).toEqual(mockData);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('levels=administrativeArea1'));
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('roles=legislatorUpperBody'));
+    });
+
     it('returns null on API error', async () => {
       (fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
