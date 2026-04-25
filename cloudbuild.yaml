@@ -18,6 +18,8 @@ steps:
       - '--platform=managed'
       - '--image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/voter/voter:$COMMIT_SHA'
       - '--region=europe-west1'
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=AIzaSyACBFqsfNipOgWJXy9NwURKiJsj90sA1cA,GOOGLE_SEARCH_API_KEY=AIzaSyDlWYQgCc9fzO8xi7pPMYxM-Dms4ASIVT0,GOOGLE_SEARCH_ENGINE_ID=70d74d740d5e24065,GOOGLE_CIVIC_API_KEY=AIzaSyDlWYQgCc9fzO8xi7pPMYxM-Dms4ASIVT0,NEXT_PUBLIC_GOOGLE_MAPS_KEY=AIzaSyDlWYQgCc9fzO8xi7pPMYxM-Dms4ASIVT0,NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDlWYQgCc9fzO8xi7pPMYxM-Dms4ASIVT0'
       - '--quiet'
 
 options:
