@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
     try {
       const model = genAI.getGenerativeModel({ 
         model: 'gemini-flash-latest',
-        tools: [{ googleSearch: {} }] as any
+        tools: [{ googleSearch: {} }] as never
       });
       const result = await model.generateContent(fullPrompt);
       const responseText = result.response.text();
@@ -174,18 +174,20 @@ export async function POST(req: NextRequest) {
       }
       
       return NextResponse.json({ response: sanitizeHtml(responseText) });
-    } catch (err: any) {
-      logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: err.message });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: errorMessage });
       // Fallback 1: Gemini Pro
       try {
         const model = genAI.getGenerativeModel({ 
           model: 'gemini-pro-latest',
-          tools: [{ googleSearch: {} }] as any
+          tools: [{ googleSearch: {} }] as never
         });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
-      } catch (err: any) {
-        logger.error('All Gemini models failed', { error: err.message });
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logger.error('All Gemini models failed', { error: errorMessage });
 
         // If we have a verified context (ctx), generate a helpful static response
         const ctx = location
