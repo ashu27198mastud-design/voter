@@ -118,7 +118,7 @@ export const AuthPanel: React.FC = () => {
               <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
-              <span className="text-sm font-bold text-gray-700">Manage MFA Settings</span>
+              <span className="text-sm font-bold text-gray-700">MFA setup</span>
             </div>
             <svg className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -134,9 +134,15 @@ export const AuthPanel: React.FC = () => {
           </svg>
           Google Cloud Security Note
         </h4>
-        <p className="text-xs text-amber-800 leading-relaxed">
-          MFA setup requires Firebase console configuration for production domains. 
-          {mfaActive ? ' Your account is currently verified.' : ' Please ensure your phone is accessible to receive security codes.'}
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Add an extra layer of security to your account by requiring a code sent to your phone when you sign in. 
+            <br />
+            <span className="text-amber-600 font-bold text-[11px] mt-1 block">
+              ⚠️ MFA setup requires Firebase console configuration.
+            </span>
+          </p>
+          <p className="text-xs text-amber-800 leading-relaxed mt-2">
+          {mfaActive ? ' Your account is currently verified.' : ' IMPORTANT: Do not claim MFA is enabled unless the actual Firebase MFA enrollment and login challenge are working end-to-end.'}
         </p>
       </div>
     </div>
