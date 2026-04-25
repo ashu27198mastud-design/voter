@@ -9,7 +9,7 @@ import { sanitizeHtml } from '@/lib/security';
 import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';
-import { normalizeLocationQuery, isLocationLikeQuery } from '@/lib/locationIntelligence';
+import { normalizeLocationQuery, isLocationLikeQuery, extractLocationIntent } from '@/lib/locationIntelligence';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
     if (!apiKey) {
       logger.error('Missing GEMINI_API_KEY');
       return NextResponse.json(
-        { response: 'Assistant is offline (API Key Missing).' },
-        { status: 503 },
+        { response: 'I’m having trouble reaching the AI service right now, but I can still help with election-process guidance. Please verify live dates, voter status, and polling booth details with your official election authority.' },
+        { status: 200 }, // Return 200 to allow frontend to show the message easily
       );
     }
 
@@ -108,12 +108,14 @@ export async function POST(req: NextRequest) {
     let query = parsedQuery.data.query;
     let location = parsedLocation?.success ? parsedLocation.data : null;
 
-    // Smart location normalization: If query is just a location name, use it as context
-    if (isLocationLikeQuery(query)) {
-      const normalized = normalizeLocationQuery(query);
-      if (normalized && !location) {
-        location = normalized;
-        query = `What is the election process in ${normalized.city}, ${normalized.state}, ${normalized.country}?`;
+    // Smart location normalization: If query has location intent, use it as context
+    if (!location) {
+      const intent = extractLocationIntent(query);
+      if (intent) {
+        location = intent;
+        if (isLocationLikeQuery(query)) {
+          query = `What is the election process in ${intent.city}, ${intent.state}, ${intent.country}?`;
+        }
       }
     }
 

@@ -2,11 +2,11 @@ import { normalizeLocationQuery, isLocationLikeQuery } from '../lib/locationInte
 
 describe('Location Intelligence', () => {
   it('normalizes common misspellings and aliases', () => {
-    expect(normalizeLocationQuery('kolkate')).toEqual({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
-    expect(normalizeLocationQuery('mum')).toEqual({ city: 'Mumbai', state: 'Maharashtra', country: 'IN' });
-    expect(normalizeLocationQuery('calcutta')).toEqual({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
-    expect(normalizeLocationQuery('blr')).toEqual({ city: 'Bengaluru', state: 'Karnataka', country: 'IN' });
-    expect(normalizeLocationQuery('nyc')).toEqual({ city: 'New York City', state: 'New York', country: 'US' });
+    expect(normalizeLocationQuery('kolkate')).toMatchObject({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
+    expect(normalizeLocationQuery('mum')).toMatchObject({ city: 'Mumbai', state: 'Maharashtra', country: 'IN' });
+    expect(normalizeLocationQuery('calcutta')).toMatchObject({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
+    expect(normalizeLocationQuery('blr')).toMatchObject({ city: 'Bengaluru', state: 'Karnataka', country: 'IN' });
+    expect(normalizeLocationQuery('nyc')).toMatchObject({ city: 'New York City', state: 'New York', country: 'US' });
   });
 
   it('detects location-like queries', () => {

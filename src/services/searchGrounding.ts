@@ -1,77 +1,60 @@
-/**
- * Search Grounding Service
- * Provides official election-process information via Google Custom Search JSON API.
- */
-
 export interface SearchResult {
   title: string;
   link: string;
   snippet: string;
-  displayLink?: string;
+  displayLink: string;
 }
 
 /**
- * Enhanced query with election-process intent for better grounding.
- */
-function buildElectionQuery(query: string, location?: { city?: string; state?: string; country?: string }): string {
-  const parts = [query];
-  
-  if (location) {
-    if (location.city) parts.push(location.city);
-    if (location.state) parts.push(location.state);
-    if (location.country) parts.push(location.country);
-  }
-  
-  // Add authority keywords based on common terminology
-  parts.push("official election authority voter registration polling place registration deadline");
-  
-  return parts.join(" ");
-}
-
-/**
- * Calls Google Custom Search API to retrieve official election data.
- * Runs strictly server-side.
+ * server-side only search grounding service
+ * uses Google Custom Search JSON API
  */
 export async function searchElectionSources(
   query: string, 
-  location?: { city?: string; state?: string; country?: string }
+  location?: { city: string; state: string; country: string }
 ): Promise<SearchResult[]> {
   const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+  const engineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
 
-  if (!apiKey || !searchEngineId) {
-    console.warn("Search grounding skipped: Missing GOOGLE_SEARCH_API_KEY or GOOGLE_SEARCH_ENGINE_ID");
+  if (!apiKey || !engineId) {
+    console.warn('Search Grounding: Missing API keys');
     return [];
   }
 
-  const enhancedQuery = buildElectionQuery(query, location);
-  const url = new URL("https://www.googleapis.com/customsearch/v1");
-  url.searchParams.append("key", apiKey);
-  url.searchParams.append("cx", searchEngineId);
-  url.searchParams.append("q", enhancedQuery);
-  url.searchParams.append("num", "5"); // Limit to top 5 results for speed and token efficiency
+  // Optimize query with location context if available
+  const context = location?.city ? ` ${location.city}` : '';
+  const searchTerms = `${query}${context}`;
+
+  const url = new URL('https://www.googleapis.com/customsearch/v1');
+  url.searchParams.append('key', apiKey);
+  url.searchParams.append('cx', engineId);
+  url.searchParams.append('q', searchTerms);
+  url.searchParams.append('num', '5'); // Limit to top 5 results
 
   try {
     const response = await fetch(url.toString(), {
-      next: { revalidate: 3600 } // Cache for 1 hour
+      cache: 'no-store'
     });
 
     if (!response.ok) {
-      throw new Error(`Google Search API error: ${response.statusText}`);
+      const errorText = typeof response.text === 'function' ? await response.text() : 'API Error';
+      console.error('Search Grounding: API error', errorText);
+      return [];
     }
 
     const data = await response.json();
-    
-    if (!data.items) return [];
+    if (!data.items || !Array.isArray(data.items)) {
+      return [];
+    }
 
-    return (data.items as Array<{ title: string; link: string; snippet: string; displayLink?: string }>).map((item) => ({
+    return data.items.map((item: any) => ({
       title: item.title,
       link: item.link,
       snippet: item.snippet,
-      displayLink: item.displayLink
+      displayLink: item.displayLink,
     }));
   } catch (error) {
-    console.error("Search grounding failed:", error);
+    console.error('Search Grounding: Network error', error);
     return [];
   }
 }

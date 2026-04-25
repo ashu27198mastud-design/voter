@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { LocationSchema } from '@/lib/validation';
 import { UserLocation } from '@/types';
+import { normalizeLocationQuery, LocationResult } from '@/lib/locationIntelligence';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,30 +26,7 @@ interface Prediction {
   isAlias: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Alias map — shorthand input → expanded city name
-// ---------------------------------------------------------------------------
-
-const ALIASES: Readonly<Record<string, string>> = {
-  mum: 'Mumbai',
-  bom: 'Mumbai',
-  blr: 'Bengaluru',
-  ndl: 'New Delhi',
-  nyc: 'New York City',
-  sf: 'San Francisco',
-  lon: 'London',
-  par: 'Paris',
-  tok: 'Tokyo',
-};
-
-const ALIAS_LOCATION_DATA: Readonly<Record<string, { city: string; state: string; country: string }>> = {
-  'Mumbai': { city: 'Mumbai', state: 'MH', country: 'IN' },
-  'Bengaluru': { city: 'Bengaluru', state: 'KA', country: 'IN' },
-  'New Delhi': { city: 'New Delhi', state: 'DL', country: 'IN' },
-  'New York City': { city: 'New York City', state: 'NY', country: 'US' },
-  'San Francisco': { city: 'San Francisco', state: 'CA', country: 'US' },
-  'London': { city: 'London', state: 'ENG', country: 'GB' },
-};
+// ALIASES and ALIAS_LOCATION_DATA removed in favor of locationIntelligence library
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -59,33 +37,23 @@ const MIN_CHARS = 2;
 const MAX_RESULTS = 6;
 const MAX_CACHE = 50;
 
-// ---------------------------------------------------------------------------
-// Alias matching
-// ---------------------------------------------------------------------------
+function matchLocalIntelligence(raw: string): Prediction[] {
+  const result = normalizeLocationQuery(raw);
+  if (!result) return [];
 
-function matchAliases(raw: string): Prediction[] {
-  const q = raw.toLowerCase().trim();
-  const seen = new Set<string>();
-  const out: Prediction[] = [];
-
-  const add = (city: string, key: string) => {
-    if (seen.has(city)) return;
-    seen.add(city);
-    out.push({
-      placeId: `alias::${key}`,
-      description: city,
-      mainText: city,
-      secondaryText: 'Quick match',
-      isAlias: true,
-    });
+  const sourceLabels = {
+    alias: 'Smart match',
+    postal: 'PIN code match',
+    heuristic: 'Search fallback',
   };
 
-  if (ALIASES[q]) add(ALIASES[q], q);
-  for (const [k, v] of Object.entries(ALIASES)) {
-    if (k.startsWith(q) || v.toLowerCase().startsWith(q)) add(v, k);
-  }
-
-  return out.slice(0, 5);
+  return [{
+    placeId: `local::${result.source}`,
+    description: result.formattedAddress,
+    mainText: result.city || result.formattedAddress,
+    secondaryText: sourceLabels[result.source] || 'Smart match',
+    isAlias: true, // We treat local matches like aliases for instant resolution
+  }];
 }
 
 // ---------------------------------------------------------------------------
@@ -195,6 +163,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   }, [onLocationSubmit]);
 
   const geocodeAndSubmit = useCallback((address: string) => {
+    const localMatch = normalizeLocationQuery(address);
+    
     if (window.google?.maps?.Geocoder) {
       const geocoder = new window.google.maps.Geocoder();
       setIsLoading(true);
@@ -202,36 +172,55 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         setIsLoading(false);
         if (status === 'OK' && results?.[0]) {
           normalizeAndSubmit(results[0].address_components, results[0].formatted_address);
+        } else if (localMatch) {
+          // Fallback to local intelligence if Maps fails but we have a match
+          onLocationSubmit({
+            city: localMatch.city,
+            state: localMatch.state,
+            country: localMatch.country,
+            formattedAddress: localMatch.formattedAddress
+          });
         } else {
           setError('Could not verify this location. Please be more specific.');
         }
       });
-    } else if (ALIAS_LOCATION_DATA[address]) {
-      const data = ALIAS_LOCATION_DATA[address];
+    } else if (localMatch) {
+      // Instant resolution if Maps is not available
       onLocationSubmit({
-        city: data.city,
-        state: data.state,
-        country: data.country,
-        formattedAddress: address
+        city: localMatch.city,
+        state: localMatch.state,
+        country: localMatch.country,
+        formattedAddress: localMatch.formattedAddress
       });
     } else {
-      setError('Maps service is still loading. Please wait a moment and try again.');
-      initServices(); // Try to re-init
+      // Submit as low-confidence manual entry instead of blocking error
+      try {
+        const manualLoc = {
+          city: address.split(',')[0].trim(),
+          state: 'Unknown',
+          country: 'Unknown',
+          formattedAddress: address
+        };
+        onLocationSubmit(manualLoc);
+      } catch {
+        setError('Please enter a valid location.');
+      }
     }
-  }, [normalizeAndSubmit, initServices, onLocationSubmit]);
+  }, [normalizeAndSubmit, onLocationSubmit]);
 
   const selectPrediction = useCallback((pred: Prediction) => {
     closeDropdown();
     setInputValue(pred.description);
 
-    // Bypassing geocoder for known aliases to provide instant response & fallback
-    if (pred.isAlias && ALIAS_LOCATION_DATA[pred.description]) {
-      const data = ALIAS_LOCATION_DATA[pred.description];
+    const localMatch = normalizeLocationQuery(pred.description);
+
+    // Bypassing geocoder for local intelligence matches
+    if (pred.isAlias && localMatch) {
       onLocationSubmit({
-        city: data.city,
-        state: data.state,
-        country: data.country,
-        formattedAddress: pred.description
+        city: localMatch.city,
+        state: localMatch.state,
+        country: localMatch.country,
+        formattedAddress: localMatch.formattedAddress
       });
       return;
     }
@@ -267,10 +256,10 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       setIsLoading(false);
       return;
     }
-    const aliasPreds = matchAliases(trimmed);
+    const localPreds = matchLocalIntelligence(trimmed);
     const svc = autocompleteServiceRef.current;
     if (!svc) {
-      if (aliasPreds.length > 0) openDropdown(aliasPreds);
+      if (localPreds.length > 0) openDropdown(localPreds);
       setIsLoading(false);
       return;
     }
@@ -286,11 +275,11 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
           secondaryText: r.structured_formatting.secondary_text ?? '',
           isAlias: false,
         }));
-        const merged = [...aliasPreds, ...googlePreds.filter(g => !aliasPreds.some(a => a.mainText === g.mainText))].slice(0, MAX_RESULTS);
+        const merged = [...localPreds, ...googlePreds.filter(g => !localPreds.some(a => a.mainText === g.mainText))].slice(0, MAX_RESULTS);
         cacheWrite(cacheKey, merged);
         openDropdown(merged);
-      } else if (aliasPreds.length > 0) {
-        openDropdown(aliasPreds);
+      } else if (localPreds.length > 0) {
+        openDropdown(localPreds);
       } else {
         closeDropdown();
       }
