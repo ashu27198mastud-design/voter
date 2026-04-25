@@ -21,7 +21,19 @@ export async function askElectionQuestion(
       const errorData = await response.json().catch(() => ({}));
       if (errorData.response) return sanitizeHtml(errorData.response);
       
-      return "I’m having trouble reaching the AI service right now, but I can still help with election-process guidance. Please verify live dates, voter status, and polling booth details with your official election authority.";
+      return `
+**Direct answer**
+I can still help with election-process guidance for your selected region.
+
+**Key information**
+Please verify your voter registration, required documents, polling booth, and official election dates through the relevant election authority.
+
+**What you should do next**
+Check your voter status, confirm your polling booth, and keep an approved photo ID ready before election day.
+
+**Verification note**
+Live dates, voter status, and polling booth details must be verified with the official election authority.
+`.trim();
     }
 
     const data = await response.json();
@@ -30,6 +42,18 @@ export async function askElectionQuestion(
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get AI response', { query, error: message });
     
-    return "I’m having trouble reaching the AI service right now, but I can still help with election-process guidance. Please verify live dates, voter status, and polling booth details with your official election authority.";
+    return `
+**Direct answer**
+I can still help with election-process guidance for your selected region.
+
+**Key information**
+Please verify your voter registration, required documents, polling booth, and official election dates through the relevant election authority.
+
+**What you should do next**
+Check your voter status, confirm your polling booth, and keep an approved photo ID ready before election day.
+
+**Verification note**
+Live dates, voter status, and polling booth details must be verified with the official election authority.
+`.trim();
   }
 }
