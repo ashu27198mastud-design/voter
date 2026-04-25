@@ -1,4 +1,5 @@
 import React from 'react';
+import { SystemStatusBadge } from './SystemStatusBadge';
 
 export const Footer: React.FC = () => {
   return (
@@ -21,6 +22,11 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-2 text-gray-500 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
               <span className="text-sm font-medium">Cloud Run</span>
             </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">System Integrity</p>
+            <SystemStatusBadge />
           </div>
 
         <div className="w-full h-px bg-gray-50 max-w-md"></div>

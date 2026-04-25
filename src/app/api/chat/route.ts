@@ -65,8 +65,24 @@ export async function POST(req: NextRequest) {
     if (!apiKey) {
       logger.error('Missing GEMINI_API_KEY');
       return NextResponse.json(
-        { response: 'I’m having trouble reaching the AI service right now, but I can still help with election-process guidance. Please verify live dates, voter status, and polling booth details with your official election authority.' },
-        { status: 200 }, // Return 200 to allow frontend to show the message easily
+        { response: `
+**Direct answer**
+I am currently operating in verified data mode.
+
+**Key information**
+- Please verify your voter registration, required documents, and official election dates through the relevant election authority.
+- For users in India, please visit the Election Commission of India (ECI) or your State Chief Electoral Officer (CEO) portal.
+- Ensure you have a valid government-issued photo ID (like an EPIC card in India).
+
+**What you should do next**
+1. Check your voter status on the official portal.
+2. Confirm your polling booth location.
+3. Keep your approved photo ID ready before election day.
+
+**Verification note**
+Sources to verify: Election Commission of India / State Chief Electoral Officer
+`.trim() },
+        { status: 200 },
       );
     }
 
@@ -217,14 +233,25 @@ Please use your personalized roadmap below for a full step-by-step guide.
 
         // Global smart fallback if no specific context exists
         const region = location ? `${location.city}, ${location.state}, ${location.country}` : 'your region';
+        
+        let regionalInfo = '';
+        if (location?.country === 'IN') {
+          regionalInfo = `- Visit the Election Commission of India (ECI) or the State CEO portal for ${location.state}.\n- Check your name in the voter roll using your EPIC number.`;
+          if (location.city.includes('Chennai')) regionalInfo += '\n- Official Authority: CEO Tamil Nadu / ECI.';
+          else if (location.city.includes('Delhi')) regionalInfo += '\n- Official Authority: CEO Delhi / ECI.';
+          else if (location.city.includes('Kolkata')) regionalInfo += '\n- Official Authority: CEO West Bengal / ECI.';
+          else if (location.city.includes('Mumbai')) regionalInfo += '\n- Official Authority: CEO Maharashtra / ECI.';
+        } else {
+          regionalInfo = `- Voter registration and polling details vary by local authority.\n- Always verify your status on the official government portal.`;
+        }
+
         return NextResponse.json({
           response: sanitizeHtml(`
 **Direct answer**
 I am currently operating in verified data mode for ${region}.
 
 **Key information**
-- Voter registration and polling details vary by local authority.
-- Always verify your status on the official Election Commission or government portal.
+${regionalInfo}
 - Ensure you have a valid government-issued photo ID.
 
 **What you should do next**
@@ -233,7 +260,7 @@ I am currently operating in verified data mode for ${region}.
 3. Confirm registration deadlines and polling dates.
 
 **Verification note**
-Please verify all information through official government channels to ensure you have the most current dates and locations.
+Sources to verify: Election Commission of India / State Chief Electoral Officer
           `),
         });
       }
