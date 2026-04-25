@@ -92,6 +92,7 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
 
         {error && (
           <div 
+            id="auth-error"
             role="alert" 
             aria-live="assertive"
             className="p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg animate-in fade-in slide-in-from-top-2"
@@ -107,13 +108,18 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
                 <label htmlFor="otp-code" className="sr-only">One-time verification code</label>
                 <input
                   id="otp-code"
+                  name="otp"
                   type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
                   maxLength={6}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   placeholder="000000"
                   className="w-full px-4 py-3 text-center text-2xl tracking-widest font-mono border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all"
                   autoFocus
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'auth-error' : undefined}
                 />
               </div>
               <button
@@ -136,12 +142,16 @@ export const PhoneAuth: React.FC<PhoneAuthProps> = ({ onSuccess, onCancel }) => 
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium" aria-hidden="true">+</span>
                 <input
                   id="phone-number"
+                  name="phone"
                   type="tel"
+                  autoComplete="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value.replace(/[^\d+]/g, ''))}
                   placeholder="1 555 000 0000"
                   className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-lg"
                   autoFocus
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'auth-error' : undefined}
                 />
               </div>
               <button

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import Script from 'next/script';
 
@@ -39,7 +40,10 @@ export default function RootLayout({
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:text-election-blue-600 focus:rounded-md focus:shadow-md">
           Skip to main content
         </a>
-        {children}
+        <main id="main-content" className="flex-1 flex flex-col">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

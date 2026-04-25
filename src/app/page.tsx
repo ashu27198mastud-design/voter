@@ -118,7 +118,7 @@ export default function Home() {
   }, [user]);
 
   return (
-    <main id="main-content" className="flex-1 w-full max-w-5xl mx-auto px-4 py-12 md:py-20 flex flex-col items-center">
+    <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-12 md:py-20 flex flex-col items-center">
       
       {/* Hero Section */}
       <section className="w-full flex flex-col items-center text-center max-w-2xl mx-auto mb-16">
@@ -221,6 +221,6 @@ export default function Home() {
       {/* Floating Chat Interface */}
       <ChatInterface location={location} />
 
-    </main>
+    </div>
   );
 }
