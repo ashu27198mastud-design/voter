@@ -9,7 +9,7 @@ import { sanitizeHtml } from '@/lib/security';
 import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';
-import { normalizeLocationQuery, isLocationLikeQuery, extractLocationIntent } from '@/lib/locationIntelligence';
+import { isLocationLikeQuery, extractLocationIntent } from '@/lib/locationIntelligence';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -146,8 +146,9 @@ export async function POST(req: NextRequest) {
         if (searchResults.length > 0) {
           searchGroundingContent = `SEARCH_GROUNDING:\n${searchResults.map(r => `[${r.title}]\n${r.snippet}\nSource: ${r.link}`).join('\n\n')}`;
         }
-      } catch (err) {
-        logger.error('Search grounding failed during chat', { error: String(err) });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        logger.error('Search grounding failed during chat', { error: message });
       }
     }
 

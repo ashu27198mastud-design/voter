@@ -5,13 +5,19 @@ export interface SearchResult {
   displayLink: string;
 }
 
+export interface SearchLocation {
+  city: string;
+  state: string;
+  country: string;
+}
+
 /**
  * server-side only search grounding service
  * uses Google Custom Search JSON API
  */
 export async function searchElectionSources(
   query: string, 
-  location?: { city: string; state: string; country: string }
+  location?: SearchLocation
 ): Promise<SearchResult[]> {
   const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
   const engineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
@@ -47,7 +53,7 @@ export async function searchElectionSources(
       return [];
     }
 
-    return data.items.map((item: any) => ({
+    return data.items.map((item: { title: string; link: string; snippet: string; displayLink: string }) => ({
       title: item.title,
       link: item.link,
       snippet: item.snippet,

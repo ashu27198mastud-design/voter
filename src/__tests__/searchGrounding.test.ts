@@ -36,7 +36,7 @@ describe('Search Grounding Service', () => {
       })
     });
 
-    const results = await searchElectionSources('election status', { city: 'Kolkata' });
+    const results = await searchElectionSources('election status', { city: 'Kolkata', state: 'West Bengal', country: 'IN' });
     
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('q=election+status+Kolkata'),

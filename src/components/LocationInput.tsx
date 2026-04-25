@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { LocationSchema } from '@/lib/validation';
 import { UserLocation } from '@/types';
-import { normalizeLocationQuery, LocationResult } from '@/lib/locationIntelligence';
+import { normalizeLocationQuery } from '@/lib/locationIntelligence';
 
 // ---------------------------------------------------------------------------
 // Types

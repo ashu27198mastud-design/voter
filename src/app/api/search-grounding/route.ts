@@ -25,7 +25,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid location' }, { status: 400 });
     }
 
-    const results = await searchElectionSources(queryResult.data.query, locationResult.data as any);
+    const results = await searchElectionSources(
+      queryResult.data.query, 
+      locationResult.data as { city: string; state: string; country: string } | undefined
+    );
     
     logger.info('Search grounding performed', { query: queryResult.data.query });
     
