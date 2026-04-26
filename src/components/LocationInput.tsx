@@ -32,7 +32,7 @@ interface Prediction {
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEBOUNCE_MS = 275;
+const DEBOUNCE_MS = 150; // Faster feedback
 const MIN_CHARS = 2;
 const MAX_RESULTS = 6;
 const MAX_CACHE = 50;
@@ -68,6 +68,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   const serviceNodeRef = useRef<HTMLDivElement | null>(null);
   const reqIdRef = useRef(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const cacheRef = useRef<Map<string, Prediction[]>>(new Map());
 
   const [inputValue, setInputValue] = useState('');
@@ -86,7 +87,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
 
   const openDropdown = useCallback((preds: Prediction[]) => {
     setPredictions(preds);
-    setActiveIndex(-1);
+    // Auto-highlight the first result if nothing is selected
+    setActiveIndex(preds.length > 0 ? 0 : -1);
     setIsOpen(preds.length > 0);
   }, []);
 
@@ -107,7 +109,76 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       if (!serviceNodeRef.current) serviceNodeRef.current = document.createElement('div');
       placesServiceRef.current = new window.google.maps.places.PlacesService(serviceNodeRef.current);
     }
+    if (!sessionTokenRef.current) {
+      sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+    }
   }, []);
+
+  const normalizeAndSubmit = useCallback((components: google.maps.GeocoderAddressComponent[] | undefined, formatted: string | undefined) => {
+    let city = '', state = '', country = '', postalCode = '';
+    
+    if (components) {
+      // Priority-based component extraction
+      const getComp = (types: string[]) => components.find(c => types.some(t => c.types.includes(t)))?.long_name;
+      const getShortComp = (types: string[]) => components.find(c => types.some(t => c.types.includes(t)))?.short_name;
+
+      city = getComp(['locality', 'postal_town', 'sublocality_level_1']) || '';
+      // Fallback for some regions where city is administrative_area_level_2
+      if (!city) city = getComp(['administrative_area_level_2']) || '';
+      
+      state = getShortComp(['administrative_area_level_1']) || '';
+      country = getShortComp(['country']) || '';
+      postalCode = getComp(['postal_code']) || '';
+    }
+
+    // Heuristic fallback if city is still missing
+    if (!city && formatted) {
+      const parts = formatted.split(',');
+      // If we have "Street, City, State", parts[1] is city. If just "City, State", parts[0] is city.
+      city = parts.length > 2 ? parts[1].trim() : parts[0].trim();
+    }
+    try {
+      const validated = LocationSchema.parse({
+        city: city || 'Unknown',
+        state: state || 'Unknown',
+        country: country || 'Unknown',
+        formattedAddress: formatted,
+      });
+      onLocationSubmit(validated);
+      setError(null);
+      if (formatted) setInputValue(formatted);
+    } catch {
+      setError('Please select a precise location from the list.');
+    }
+  }, [onLocationSubmit]);
+
+  const handleGeolocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setIsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
+          setIsLoading(false);
+          if (status === 'OK' && results?.[0]) {
+            normalizeAndSubmit(results[0].address_components, results[0].formatted_address);
+          } else {
+            setError('Could not determine your location. Please type it manually.');
+          }
+        });
+      },
+      (err) => {
+        setIsLoading(false);
+        setError('Location access denied. Please type your location manually.');
+        console.warn('Geolocation error:', err);
+      }
+    );
+  }, [normalizeAndSubmit]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -136,31 +207,6 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, [closeDropdown]);
-
-  const normalizeAndSubmit = useCallback((components: google.maps.GeocoderAddressComponent[] | undefined, formatted: string | undefined) => {
-    let city = '', state = '', country = '';
-    if (components) {
-      for (const c of components) {
-        if (c.types.includes('locality')) city = c.long_name;
-        else if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-        else if (c.types.includes('country')) country = c.short_name;
-      }
-    }
-    if (!city && formatted) city = formatted.split(',')[0].trim();
-    try {
-      const validated = LocationSchema.parse({
-        city: city || 'Unknown',
-        state: state || 'Unknown',
-        country: country || 'Unknown',
-        formattedAddress: formatted,
-      });
-      onLocationSubmit(validated);
-      setError(null);
-      if (formatted) setInputValue(formatted);
-    } catch {
-      setError('Please select a precise location from the list.');
-    }
-  }, [onLocationSubmit]);
 
   const geocodeAndSubmit = useCallback((address: string) => {
     const localMatch = normalizeLocationQuery(address);
@@ -233,7 +279,14 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         geocodeAndSubmit(pred.description);
         return;
       }
-      svc.getDetails({ placeId: pred.placeId, fields: ['address_components', 'formatted_address'] }, (result, status) => {
+      svc.getDetails({ 
+        placeId: pred.placeId, 
+        fields: ['address_components', 'formatted_address', 'geometry'],
+        sessionToken: sessionTokenRef.current || undefined
+      }, (result, status) => {
+        // Reset session token after completion
+        sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        
         if (status === window.google.maps.places.PlacesServiceStatus.OK && result) {
           normalizeAndSubmit(result.address_components, result.formatted_address);
         } else {
@@ -264,7 +317,11 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       return;
     }
     const thisId = ++reqIdRef.current;
-    svc.getPlacePredictions({ input: trimmed, types: ['geocode'] }, (results, status) => {
+    svc.getPlacePredictions({ 
+      input: trimmed, 
+      types: ['geocode'],
+      sessionToken: sessionTokenRef.current || undefined
+    }, (results, status) => {
       if (thisId !== reqIdRef.current) return;
       setIsLoading(false);
       const OK = window.google.maps.places.PlacesServiceStatus.OK;
@@ -355,14 +412,25 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Enter city or zip (e.g., mum, blr, nyc)..."
-          className="w-full px-6 py-4 pr-14 text-lg rounded-full border-2 border-election-blue-100 bg-white shadow-sm focus:border-election-blue-500 focus:outline-none focus:ring-4 focus:ring-election-blue-50 transition-all duration-300"
+          className="w-full px-6 py-4 pr-24 text-lg rounded-full border-2 border-election-blue-100 bg-white shadow-sm focus:border-election-blue-500 focus:outline-none focus:ring-4 focus:ring-election-blue-50 transition-all duration-300"
         />
-        {isLoading && (
-          <div className="absolute right-5 top-1/2 -translate-y-1/2" role="status">
-            <span className="sr-only">Searching...</span>
-            <div className="w-4 h-4 border-2 border-election-blue-200 border-t-election-blue-600 rounded-full animate-spin" />
-          </div>
-        )}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-election-blue-200 border-t-election-blue-600 rounded-full animate-spin" role="status" />
+          ) : (
+            <button
+              onClick={handleGeolocation}
+              className="p-2 text-election-blue-500 hover:bg-election-blue-50 rounded-full transition-colors"
+              title="Use my location"
+              aria-label="Use my current location"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {isOpen && predictions.length > 0 && (

@@ -32,6 +32,23 @@ const CITY_ALIASES: Record<string, Omit<LocationResult, "confidence" | "source" 
   "nyc": { city: "New York City", state: "New York", country: "US" },
   "new york": { city: "New York City", state: "New York", country: "US" },
   "california": { city: "Sacramento", state: "CA", country: "US" },
+  "sf": { city: "San Francisco", state: "CA", country: "US" },
+  "la": { city: "Los Angeles", state: "CA", country: "US" },
+  "chi": { city: "Chicago", state: "IL", country: "US" },
+  "bos": { city: "Boston", state: "MA", country: "US" },
+  "sea": { city: "Seattle", state: "WA", country: "US" },
+  "dc": { city: "Washington", state: "DC", country: "US" },
+  "toronto": { city: "Toronto", state: "ON", country: "CA" },
+  "vancouver": { city: "Vancouver", state: "BC", country: "CA" },
+  "sydney": { city: "Sydney", state: "NSW", country: "AU" },
+  "melbourne": { city: "Melbourne", state: "VIC", country: "AU" },
+  "berlin": { city: "Berlin", state: "Berlin", country: "DE" },
+  "paris": { city: "Paris", state: "IDF", country: "FR" },
+  "tokyo": { city: "Tokyo", state: "Tokyo", country: "JP" },
+  "singapore": { city: "Singapore", state: "Singapore", country: "SG" },
+  "dubai": { city: "Dubai", state: "Dubai", country: "AE" },
+  "cape town": { city: "Cape Town", state: "WC", country: "ZA" },
+  "jhb": { city: "Johannesburg", state: "GP", country: "ZA" },
 };
 
 const PIN_CODE_MAP: Record<string, Omit<LocationResult, "confidence" | "source" | "formattedAddress">> = {

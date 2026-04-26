@@ -61,6 +61,10 @@ export function generateTimeline(
       line1: voterInfo.pollingLocations[0].address.line1,
       city: voterInfo.pollingLocations[0].address.city,
       state: voterInfo.pollingLocations[0].address.state,
+    } : (location?.city || location?.country) ? {
+      line1: '', // No specific street address for fallback
+      city: location.city || '',
+      state: location.country || '',
     } : undefined,
     content: `
       <h3>Election: ${electionName}</h3>
@@ -70,7 +74,14 @@ export function generateTimeline(
           <strong>Polling Place:</strong><br/>
           ${voterInfo.pollingLocations[0].address.line1}, ${voterInfo.pollingLocations[0].address.city}
         </div>
-      ` : `<p class="mt-2">${fallback ? 'Visit your local election commission portal to find your booth.' : 'Locate your designated polling station via official government channels.'}</p>`}
+      ` : `
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-100 mt-2">
+          <p className="text-sm text-amber-800">
+            <strong>Regional Guidance:</strong><br/>
+            ${fallback ? 'Visit your local election commission portal to find your booth.' : 'Locate your designated polling station via official government channels.'}
+          </p>
+        </div>
+      `}
     `,
   });
 

@@ -41,13 +41,14 @@ export async function GET(req: NextRequest) {
       : await queryVoterInfo(cleanAddress);
 
     if (!data) {
+      logger.warn('Civic API returned no data', { address: cleanAddress, type: cleanType });
       return NextResponse.json(
         { error: 'No data found for this location or API unavailable' },
         { status: 404 }
       );
     }
 
-    logger.info('Civic API Fetch Successful', { type: cleanType });
+    logger.info('Civic API Fetch Successful', { type: cleanType, address: cleanAddress });
     return NextResponse.json(data);
   } catch (error) {
     logger.error('Civic API Route error', { error });

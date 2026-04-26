@@ -15,7 +15,8 @@ export const PollingMap: React.FC<PollingMapProps> = ({ address }) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   if (!apiKey) return null;
 
-  const fullAddress = `${address.line1}, ${address.city}, ${address.state}`;
+  const addressParts = [address.line1, address.city, address.state].filter(Boolean);
+  const fullAddress = addressParts.join(', ');
   const encodedAddress = encodeURIComponent(fullAddress);
   
   // Use Static Maps API for performance and simplicity
