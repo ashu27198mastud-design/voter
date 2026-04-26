@@ -1,75 +1,81 @@
-import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
-const CIVIC_API_BASE_URL = 'https://www.googleapis.com/civicinfo/v2';
+const API_KEY = process.env.GOOGLE_CIVIC_API_KEY;
+const BASE_URL = 'https://www.googleapis.com/civicinfo/v2';
 
-export const VoterInfoSchema = z.object({
-  address: z.string(),
-  electionId: z.string().optional(),
-});
+if (!API_KEY) {
+  logger.warn('GOOGLE_CIVIC_API_KEY is not defined in environment variables.');
+}
 
-export const RepresentativeSchema = z.object({
-  address: z.string(),
-  levels: z.array(z.string()).optional(),
-  roles: z.array(z.string()).optional(),
-});
-
-export async function queryVoterInfo(address: string, electionId?: string) {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY;
-  if (!apiKey) {
-    console.error('GOOGLE_CIVIC_API_KEY is not defined');
-    return null;
-  }
-
-  const url = new URL(`${CIVIC_API_BASE_URL}/voterinfo`);
-  url.searchParams.append('key', apiKey);
-  url.searchParams.append('address', address);
-  if (electionId) {
-    url.searchParams.append('electionId', electionId);
-  }
-
+/**
+ * Fetches voter information (polling places, contests, etc.) for a specific address.
+ * Corresponds to the voterInfoQuery endpoint.
+ * @param address The voter's registered address.
+ * @param electionId Optional election ID. Defaults to the latest/upcoming.
+ */
+export async function voterInfoQuery(address: string, electionId?: string) {
+  if (!API_KEY) return null;
   try {
+    const url = new URL(`${BASE_URL}/voterinfo`);
+    url.searchParams.append('key', API_KEY || '');
+    url.searchParams.append('address', address);
+    if (electionId) {
+      url.searchParams.append('electionId', electionId);
+    }
+
     const response = await fetch(url.toString());
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('Civic API Error:', errorData);
+      logger.error('Error fetching voter info', { error: errorData || response.statusText, address });
       return null;
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching voter info:', error);
+    return await response.json();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Error fetching voter info', { error: message, address });
     return null;
   }
 }
 
-export async function queryRepresentatives(address: string, levels?: string[], roles?: string[]) {
-  const apiKey = process.env.GOOGLE_CIVIC_API_KEY;
-  if (!apiKey) {
-    console.error('GOOGLE_CIVIC_API_KEY is not defined');
-    return null;
-  }
-
-  const url = new URL(`${CIVIC_API_BASE_URL}/representatives`);
-  url.searchParams.append('key', apiKey);
-  url.searchParams.append('address', address);
-  if (levels) {
-    levels.forEach(level => url.searchParams.append('levels', level));
-  }
-  if (roles) {
-    roles.forEach(role => url.searchParams.append('roles', role));
-  }
-
+/**
+ * Fetches representative information for a specific address.
+ * Corresponds to the representativesInfoByAddress endpoint.
+ * @param address The address to lookup.
+ * @param levels Optional levels to filter by.
+ * @param roles Optional roles to filter by.
+ */
+export async function representativesInfoByAddress(
+  address: string, 
+  levels?: string[], 
+  roles?: string[]
+) {
+  if (!API_KEY) return null;
   try {
+    const url = new URL(`${BASE_URL}/representatives`);
+    url.searchParams.append('key', API_KEY);
+    url.searchParams.append('address', address);
+    
+    if (levels) {
+      levels.forEach(level => url.searchParams.append('levels', level));
+    }
+    if (roles) {
+      roles.forEach(role => url.searchParams.append('roles', role));
+    }
+
     const response = await fetch(url.toString());
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('Civic API Error:', errorData);
+      logger.error('Error fetching representative info', { error: errorData || response.statusText, address });
       return null;
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching representative info:', error);
+    return await response.json();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Error fetching representative info', { error: message, address });
     return null;
   }
 }
+
+// Aliases for compatibility with existing API routes
+export const queryVoterInfo = voterInfoQuery;
+export const queryRepresentatives = representativesInfoByAddress;

@@ -4,30 +4,36 @@ export interface LocationResult {
   country: string;
   formattedAddress: string;
   confidence: "high" | "medium" | "low";
-  source: "alias" | "postal" | "heuristic" | "predictive";
+  source: "alias" | "postal" | "country" | "heuristic" | "predictive" | "google";
 }
 
 const CITY_DATA: Record<string, { city: string; state: string; country: string }> = {
-  "delhi": { city: "New Delhi", state: "DL", country: "IN" },
-  "mumbai": { city: "Mumbai", state: "MH", country: "IN" },
-  "kolkata": { city: "Kolkata", state: "WB", country: "IN" },
-  "bengaluru": { city: "Bengaluru", state: "KA", country: "IN" },
-  "chennai": { city: "Chennai", state: "TN", country: "IN" },
-  "hyderabad": { city: "Hyderabad", state: "TG", country: "IN" },
+  "delhi": { city: "New Delhi", state: "Delhi", country: "IN" },
+  "new delhi": { city: "New Delhi", state: "Delhi", country: "IN" },
+  "mumbai": { city: "Mumbai", state: "Maharashtra", country: "IN" },
+  "kolkata": { city: "Kolkata", state: "West Bengal", country: "IN" },
+  "bengaluru": { city: "Bengaluru", state: "Karnataka", country: "IN" },
+  "chennai": { city: "Chennai", state: "Tamil Nadu", country: "IN" },
+  "hyderabad": { city: "Hyderabad", state: "Telangana", country: "IN" },
   "pune": { city: "Pune", state: "MH", country: "IN" },
   "ahmedabad": { city: "Ahmedabad", state: "GJ", country: "IN" },
   "jaipur": { city: "Jaipur", state: "RJ", country: "IN" },
   "lucknow": { city: "Lucknow", state: "UP", country: "IN" },
   "new york": { city: "New York City", state: "New York", country: "US" },
+  "new york city": { city: "New York City", state: "New York", country: "US" },
   "san francisco": { city: "San Francisco", state: "CA", country: "US" },
   "los angeles": { city: "Los Angeles", state: "CA", country: "US" },
   "chicago": { city: "Chicago", state: "IL", country: "US" },
   "boston": { city: "Boston", state: "MA", country: "US" },
   "seattle": { city: "Seattle", state: "WA", country: "US" },
   "washington": { city: "Washington", state: "DC", country: "US" },
+  "washington dc": { city: "Washington", state: "DC", country: "US" },
   "london": { city: "London", state: "England", country: "GB" },
+  "manchester": { city: "Manchester", state: "England", country: "GB" },
+  "birmingham": { city: "Birmingham", state: "England", country: "GB" },
   "toronto": { city: "Toronto", state: "ON", country: "CA" },
   "vancouver": { city: "Vancouver", state: "BC", country: "CA" },
+  "ottawa": { city: "Ottawa", state: "ON", country: "CA" },
   "sydney": { city: "Sydney", state: "NSW", country: "AU" },
   "melbourne": { city: "Melbourne", state: "VIC", country: "AU" },
   "brisbane": { city: "Brisbane", state: "QLD", country: "AU" },
@@ -42,12 +48,23 @@ const CITY_DATA: Record<string, { city: string; state: string; country: string }
 };
 
 const COUNTRY_CITY_MAP: Record<string, string[]> = {
-  "in": ["delhi", "mumbai", "bengaluru", "kolkata", "chennai"],
-  "india": ["delhi", "mumbai", "bengaluru", "kolkata", "chennai"],
+  "in": ["new delhi", "mumbai", "kolkata", "chennai", "bengaluru"],
+  "ind": ["new delhi", "mumbai", "kolkata", "chennai", "bengaluru"],
+  "india": ["new delhi", "mumbai", "kolkata", "chennai", "bengaluru"],
+  "bharat": ["new delhi", "mumbai", "kolkata", "chennai", "bengaluru"],
   "au": ["sydney", "melbourne", "brisbane", "perth"],
+  "aus": ["sydney", "melbourne", "brisbane", "perth"],
   "australia": ["sydney", "melbourne", "brisbane", "perth"],
-  "us": ["new york", "san francisco", "los angeles", "chicago", "washington"],
-  "usa": ["new york", "san francisco", "los angeles", "chicago", "washington"],
+  "us": ["washington", "new york city", "los angeles", "chicago"],
+  "usa": ["washington", "new york city", "los angeles", "chicago"],
+  "america": ["washington", "new york city", "los angeles", "chicago"],
+  "united states": ["washington", "new york city", "los angeles", "chicago"],
+  "uk": ["london", "manchester", "birmingham"],
+  "united kingdom": ["london", "manchester", "birmingham"],
+  "britain": ["london", "manchester", "birmingham"],
+  "ca": ["ottawa", "toronto", "vancouver"],
+  "can": ["ottawa", "toronto", "vancouver"],
+  "canada": ["ottawa", "toronto", "vancouver"],
   "za": ["cape town", "johannesburg"],
   "south africa": ["cape town", "johannesburg"],
 };
@@ -57,9 +74,10 @@ const CITY_ALIASES: Record<string, string> = {
   "mum": "mumbai",
   "blr": "bengaluru",
   "cal": "kolkata",
+  "chen": "chennai",
   "syd": "sydney",
   "mel": "melbourne",
-  "nyc": "new york",
+  "nyc": "new york city",
   "sf": "san francisco",
   "la": "los angeles",
   "bos": "boston",
@@ -105,7 +123,19 @@ export function getPredictiveLocationSuggestions(input: string): LocationResult[
   if (/^\d+$/.test(cleanInput)) {
     if (PIN_CODE_MAP[cleanInput]) {
       add(PIN_CODE_MAP[cleanInput], "postal", "high");
+    } else if (cleanInput.length === 6) {
+      // unknown 6-digit Indian PIN = low confidence with country IN
+      suggestions.push({
+        city: 'Unknown City',
+        state: 'Unknown',
+        country: 'IN',
+        formattedAddress: `PIN ${cleanInput}, IN`,
+        confidence: 'low',
+        source: 'postal'
+      });
+      return suggestions;
     }
+    
     // Partial PIN match (heuristic)
     for (const pin in PIN_CODE_MAP) {
       if (pin.startsWith(cleanInput)) {
@@ -143,12 +173,29 @@ export function getPredictiveLocationSuggestions(input: string): LocationResult[
     }
   }
 
-  return suggestions.slice(0, 5);
+  // Deduplicate combinations
+  const uniqueSuggestions: LocationResult[] = [];
+  const uniqueSet = new Set<string>();
+  
+  for (const s of suggestions) {
+    const key = `${s.city}-${s.state}-${s.country}`;
+    if (!uniqueSet.has(key)) {
+      uniqueSet.add(key);
+      uniqueSuggestions.push(s);
+    }
+  }
+
+  return uniqueSuggestions.slice(0, 6);
 }
 
 export function normalizeLocationQuery(input: string): LocationResult | null {
   const suggestions = getPredictiveLocationSuggestions(input);
-  return suggestions.length > 0 ? suggestions[0] : null;
+  if (suggestions.length === 0) return null;
+  // sort highest confidence first
+  return suggestions.sort((a, b) => {
+    const scores = { high: 3, medium: 2, low: 1 };
+    return scores[b.confidence] - scores[a.confidence];
+  })[0];
 }
 
 export function isLocationLikeQuery(input: string): boolean {
@@ -157,10 +204,44 @@ export function isLocationLikeQuery(input: string): boolean {
 }
 
 export function extractLocationIntent(input: string): LocationResult | null {
-  const words = input.toLowerCase().split(/\s+|,/);
+  const cleanInput = input.toLowerCase();
+  
+  // Try multi-word cities first (e.g., "new york")
+  const multiWordCities = ['new york', 'new york city', 'new delhi', 'cape town', 'san francisco', 'los angeles'];
+  for (const mwc of multiWordCities) {
+    if (cleanInput.includes(mwc)) {
+      const res = normalizeLocationQuery(mwc);
+      if (res) return res;
+    }
+  }
+
+  // Try country names next to override city if the whole string indicates a country
+  for (const country in COUNTRY_CITY_MAP) {
+    if (cleanInput.includes(country)) {
+      // Need a boundary check to avoid matching 'in' inside other words
+      const regex = new RegExp(`\\b${country}\\b`, 'i');
+      if (regex.test(cleanInput)) {
+         // Return the first city for the country as the best proxy, or create a country-level result
+         const res = normalizeLocationQuery(country);
+         if (res) return res;
+      }
+    }
+  }
+
+  // Fallback to word-by-word extraction
+  const words = cleanInput.split(/\s+|,/);
   for (const word of words) {
+    if (word.length < 3 && !/^\d+$/.test(word)) continue; // skip small noise words unless it's a number
+    const res = normalizeLocationQuery(word);
+    if (res && res.confidence === 'high') return res;
+  }
+  
+  // Try again for medium confidence
+  for (const word of words) {
+    if (word.length < 3 && !/^\d+$/.test(word)) continue;
     const res = normalizeLocationQuery(word);
     if (res) return res;
   }
+
   return null;
 }

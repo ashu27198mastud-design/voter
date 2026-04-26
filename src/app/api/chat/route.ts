@@ -40,24 +40,19 @@ async function fetchElectionContext(
 }
 
 const RESPONSE_FORMAT = `
-Structure your response exactly as follows:
-**Election update for [location]**
-[Context]
+Structure your response exactly as follows using ONLY safe HTML (<strong>, <p>, <br>, <ul>, <ol>, <li>):
 
-**Key regional information**
-[Registry facts]
-
-**Official guidance**
-[Steps/Docs]
-
-**What this means for you**
-[Summary]
-
-**Your next step**
-[Action]
-
-**Verification note**
-[Verbatim note]
+<strong>Direct answer</strong><br />
+[Contextual answer]
+<br /><br />
+<strong>Key information</strong>
+[Registry facts in a list]
+<br /><br />
+<strong>What you should do next</strong>
+[Steps/Actions in an ordered list]
+<br /><br />
+<strong>Sources / verification</strong>
+[Verbatim note or source links]
 `;
 
 export async function POST(req: NextRequest) {
@@ -184,8 +179,7 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
     
     try {
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-flash-latest',
-        tools: [{ googleSearch: {} }] as never
+        model: 'gemini-1.5-flash'
       });
       const result = await model.generateContent(fullPrompt);
       const responseText = result.response.text();
@@ -201,8 +195,7 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
       // Fallback 1: Gemini Pro
       try {
         const model = genAI.getGenerativeModel({ 
-          model: 'gemini-pro-latest',
-          tools: [{ googleSearch: {} }] as never
+          model: 'gemini-1.5-pro'
         });
         const result = await model.generateContent(fullPrompt);
         return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
@@ -218,17 +211,22 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
         if (ctx && ctx.hasOfficialData) {
           return NextResponse.json({
             response: sanitizeHtml(`
-**Election Information for ${ctx.location}**
-
-I am currently experiencing a service interruption with my primary AI engine, but I can provide you with verified registry data for your location:
-
-- **Process**: ${ctx.officialGuidance}
-- **Required Documents**: ${ctx.requiredDocuments.join(', ')}
-- **Key Steps**: ${ctx.keySteps.join(' → ')}
-
-${ctx.verifiedUpdates.length > 0 ? `*Verification Note: ${ctx.verifiedUpdates[0]}*` : ''}
-
-Please use your personalized roadmap below for a full step-by-step guide.
+<strong>Direct answer</strong><br />
+I am providing you with verified registry data for ${ctx.location}:
+<br /><br />
+<strong>Key information</strong>
+<ul>
+  <li>Process: ${ctx.officialGuidance}</li>
+  <li>Required Documents: ${ctx.requiredDocuments.join(', ')}</li>
+</ul>
+<br />
+<strong>What you should do next</strong>
+<ol>
+  ${ctx.keySteps.map(step => `<li>${step}</li>`).join('')}
+</ol>
+<br />
+<strong>Sources / verification</strong>
+<p>${ctx.verifiedUpdates.length > 0 ? ctx.verifiedUpdates[0] : 'Official national electoral authority'}</p>
             `),
           });
         }

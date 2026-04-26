@@ -2,10 +2,10 @@ import { normalizeLocationQuery, isLocationLikeQuery, getPredictiveLocationSugge
 
 describe('Location Intelligence', () => {
   it('normalizes common misspellings and aliases', () => {
-    expect(normalizeLocationQuery('kolkate')).toMatchObject({ city: 'Kolkata', state: 'WB', country: 'IN' });
-    expect(normalizeLocationQuery('mum')).toMatchObject({ city: 'Mumbai', state: 'MH', country: 'IN' });
-    expect(normalizeLocationQuery('calcutta')).toMatchObject({ city: 'Kolkata', state: 'WB', country: 'IN' });
-    expect(normalizeLocationQuery('blr')).toMatchObject({ city: 'Bengaluru', state: 'KA', country: 'IN' });
+    expect(normalizeLocationQuery('kolkate')).toMatchObject({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
+    expect(normalizeLocationQuery('mum')).toMatchObject({ city: 'Mumbai', state: 'Maharashtra', country: 'IN' });
+    expect(normalizeLocationQuery('calcutta')).toMatchObject({ city: 'Kolkata', state: 'West Bengal', country: 'IN' });
+    expect(normalizeLocationQuery('blr')).toMatchObject({ city: 'Bengaluru', state: 'Karnataka', country: 'IN' });
     expect(normalizeLocationQuery('nyc')).toMatchObject({ city: 'New York City', state: 'New York', country: 'US' });
   });
 
@@ -20,8 +20,8 @@ describe('Location Intelligence', () => {
   });
 
   it('normalizes major international and national cities', () => {
-    expect(normalizeLocationQuery('hyderabad')).toMatchObject({ city: 'Hyderabad', state: 'TG', country: 'IN' });
-    expect(normalizeLocationQuery('chennai')).toMatchObject({ city: 'Chennai', state: 'TN', country: 'IN' });
+    expect(normalizeLocationQuery('hyderabad')).toMatchObject({ city: 'Hyderabad', state: 'Telangana', country: 'IN' });
+    expect(normalizeLocationQuery('chennai')).toMatchObject({ city: 'Chennai', state: 'Tamil Nadu', country: 'IN' });
     expect(normalizeLocationQuery('sydney')).toMatchObject({ city: 'Sydney', state: 'NSW', country: 'AU' });
   });
 

@@ -42,11 +42,13 @@ function matchLocalIntelligence(raw: string): Prediction[] {
   const results = getPredictiveLocationSuggestions(raw);
   if (results.length === 0) return [];
 
-  const sourceLabels = {
+  const sourceLabels: Record<LocationResult['source'], string> = {
     alias: 'Smart match',
     postal: 'PIN code match',
     heuristic: 'City match',
-    predictive: 'Regional suggestion'
+    predictive: 'Regional suggestion',
+    country: 'Country match',
+    google: 'Google Maps'
   };
 
   return results.map(res => ({
@@ -383,6 +385,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         e.preventDefault();
         if (activeIndex >= 0 && predictions[activeIndex]) {
           selectPrediction(predictions[activeIndex]);
+        } else if (predictions.length > 0 && predictions[0].isAlias) {
+          // If a local prediction is top of list but not explicitly selected, use it
+          selectPrediction(predictions[0]);
         } else if (inputValue.trim().length >= MIN_CHARS) {
           geocodeAndSubmit(inputValue.trim());
         }
@@ -459,7 +464,10 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
               className={`px-5 py-3 cursor-pointer ${i === activeIndex ? 'bg-election-blue-50 text-election-blue-800' : 'text-gray-700 hover:bg-gray-50'}`}
             >
               <div className="flex flex-col">
-                <span className="font-semibold text-sm">{p.mainText}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm">{p.mainText}</span>
+                  {!p.isAlias && <span className="text-[10px] uppercase font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Google Maps</span>}
+                </div>
                 <span className="text-xs text-gray-400">{p.secondaryText}</span>
               </div>
             </li>
