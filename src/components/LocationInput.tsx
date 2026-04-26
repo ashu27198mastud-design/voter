@@ -319,7 +319,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     const thisId = ++reqIdRef.current;
     svc.getPlacePredictions({ 
       input: trimmed, 
-      // Omit types to allow all (addresses, cities, establishments) for broad "Google Search" feel
+      types: ['address'], // Prioritize full street addresses as requested
       sessionToken: sessionTokenRef.current || undefined
     }, (results, status) => {
       if (thisId !== reqIdRef.current) return;

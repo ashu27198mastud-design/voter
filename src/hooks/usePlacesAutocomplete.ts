@@ -105,7 +105,7 @@ export function usePlacesAutocomplete(): UsePlacesAutocompleteReturn {
         }
 
         service.getPlacePredictions(
-          { input: trimmed },
+          { input: trimmed, types: ['address'] },
           (results, status) => {
             setIsLoading(false);
 
