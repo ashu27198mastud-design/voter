@@ -5,7 +5,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AI_SYSTEM_PROMPT } from '@/config/aiPrompt';
 import { logger } from '@/lib/logger';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { sanitizeHtml } from '@/lib/security';
 import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';

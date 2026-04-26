@@ -74,7 +74,7 @@ export async function searchElectionSources(
     ];
 
     return data.items
-      .map((item: any) => ({
+      .map((item: { title?: string; link?: string; snippet?: string; displayLink?: string }) => ({
         title: item.title?.replace(/<[^>]*>?/gm, '') || '',
         link: item.link || '',
         snippet: item.snippet?.replace(/<[^>]*>?/gm, '') || '',
@@ -92,7 +92,7 @@ export async function searchElectionSources(
         const bOfficial = officialDomains.some(d => b.link.includes(d)) ? 1 : 0;
         return bOfficial - aOfficial;
       });
-  } catch (error) {
+  } catch {
     return [];
   }
 }

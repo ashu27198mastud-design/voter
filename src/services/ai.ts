@@ -1,5 +1,4 @@
 import { logger } from '../lib/logger';
-import { sanitizeHtml } from '../lib/security';
 import type { UserLocation } from '../types';
 import { getElectionAuthorityGuidance } from '../lib/electionAuthority';
 

@@ -44,6 +44,7 @@ describe('Chat API Behavior', () => {
   });
 
   it('removes technical leakage from Gemini responses', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     GoogleGenerativeAI.mockImplementationOnce(() => ({
       getGenerativeModel: () => ({
@@ -67,6 +68,7 @@ describe('Chat API Behavior', () => {
 
   it('mentions Australian Electoral Commission for AU fallback', async () => {
     // Force a failure to trigger fallback
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     GoogleGenerativeAI.mockImplementationOnce(() => ({
       getGenerativeModel: () => ({
@@ -89,6 +91,7 @@ describe('Chat API Behavior', () => {
   });
 
   it('mentions Election Commission of India for IN fallback', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     GoogleGenerativeAI.mockImplementationOnce(() => ({
       getGenerativeModel: () => ({

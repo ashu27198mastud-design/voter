@@ -45,6 +45,7 @@ describe('Location Intelligence', () => {
   });
 
   it('extracts location intent from full questions', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { extractLocationIntent } = require('../lib/locationIntelligence');
     expect(extractLocationIntent('voting date in sydney')).toMatchObject({ city: 'Sydney' });
     expect(extractLocationIntent('how to register in london')).toMatchObject({ city: 'London' });
