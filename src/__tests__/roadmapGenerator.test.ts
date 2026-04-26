@@ -1,5 +1,5 @@
-import { generateTimeline, getNextBestAction, getReadiness } from '../src/logic/roadmapGenerator';
-import { VoterContext } from '../src/types';
+import { generateTimeline, getNextBestAction, getReadiness } from '../logic/roadmapGenerator';
+import { VoterContext } from '../types';
 import { VoterInfoResponse } from '@/services/civic';
 
 describe('Roadmap Generator Logic', () => {
@@ -61,7 +61,7 @@ describe('Roadmap Generator Logic', () => {
   });
 
   test('should handle not-eligible status', () => {
-    const ineligibleContext: VoterContext = { ...mockContext, registrationStatus: 'not-eligible' };
+    const ineligibleContext: VoterContext = { ...mockContext, registrationStatus: 'not-registered' };
     const readiness = getReadiness(ineligibleContext, null);
     expect(readiness.status).toBe('error');
     expect(readiness.text).toBe('❌ Not Eligible Yet');
