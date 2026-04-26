@@ -39,14 +39,50 @@ describe('Search Grounding Service', () => {
     const results = await searchElectionSources('election status', { city: 'Kolkata', state: 'West Bengal', country: 'IN' });
     
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('q=election+status+Kolkata'),
+      expect.stringContaining('Election+Commission+of+India'),
       expect.anything()
     );
     expect(results).toHaveLength(1);
     expect(results[0].title).toBe('Result 1');
   });
 
-  it('handles API errors gracefully', async () => {
+  it('enhances AU query with AEC intent', async () => {
+    process.env.GOOGLE_SEARCH_API_KEY = 'test-key';
+    process.env.GOOGLE_SEARCH_ENGINE_ID = 'test-id';
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] })
+    });
+
+    await searchElectionSources('how to vote', { city: 'Sydney', state: 'NSW', country: 'AU' });
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('Australian+Electoral+Commission'),
+      expect.anything()
+    );
+  });
+
+  it('normalizes results and filters campaigns', async () => {
+    process.env.GOOGLE_SEARCH_API_KEY = 'test-key';
+    process.env.GOOGLE_SEARCH_ENGINE_ID = 'test-id';
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        items: [
+          { title: '<b>Official</b> Election', snippet: 'Click here', link: 'https://vote.gov' },
+          { title: 'Vote for Me', snippet: 'Donate now', link: 'https://campaign.com' }
+        ]
+      })
+    });
+
+    const results = await searchElectionSources('voting');
+    expect(results).toHaveLength(1);
+    expect(results[0].title).toBe('Official Election');
+    expect(results[0].link).toBe('https://vote.gov');
+  });
+
+  it('handles API errors and empty responses gracefully', async () => {
     process.env.GOOGLE_SEARCH_API_KEY = 'test-key';
     process.env.GOOGLE_SEARCH_ENGINE_ID = 'test-id';
 

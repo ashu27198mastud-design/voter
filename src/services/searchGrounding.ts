@@ -27,15 +27,32 @@ export async function searchElectionSources(
     return [];
   }
 
-  // Optimize query with location context if available
-  const context = location?.city ? ` ${location.city}` : '';
-  const searchTerms = `${query}${context}`;
+  // Optimize query with location context and official source intent
+  let intentContext = '';
+  if (location) {
+    const { country, city, state } = location;
+    if (country === 'IN' || country === 'India' || country === 'Bharat') {
+      intentContext = ` Election Commission of India CEO ${state} voter registration EPIC electoral roll official`;
+    } else if (country === 'AU' || country === 'Australia') {
+      intentContext = ' Australian Electoral Commission AEC enrolment polling place postal voting official';
+    } else if (country === 'GB' || country === 'UK' || country === 'United Kingdom') {
+      intentContext = ' gov.uk electoral registration polling station photo ID official';
+    } else if (country === 'US' || country === 'United States') {
+      intentContext = ' vote.gov state election office polling place voter registration absentee official';
+    } else if (country === 'CA' || country === 'Canada') {
+      intentContext = ' Elections Canada voter registration polling station ID official';
+    } else {
+      intentContext = ` ${city} ${state} official election authority registration polling`;
+    }
+  }
+
+  const searchTerms = `${query}${intentContext}`.substring(0, 200);
 
   const url = new URL('https://www.googleapis.com/customsearch/v1');
   url.searchParams.append('key', apiKey);
   url.searchParams.append('cx', engineId);
   url.searchParams.append('q', searchTerms);
-  url.searchParams.append('num', '5'); // Limit to top 5 results
+  url.searchParams.append('num', '5');
 
   try {
     const response = await fetch(url.toString(), {
@@ -43,8 +60,6 @@ export async function searchElectionSources(
     });
 
     if (!response.ok) {
-      const errorText = typeof response.text === 'function' ? await response.text() : 'API Error';
-      console.error('Search Grounding: API error', errorText);
       return [];
     }
 
@@ -53,14 +68,31 @@ export async function searchElectionSources(
       return [];
     }
 
-    return data.items.map((item: { title: string; link: string; snippet: string; displayLink: string }) => ({
-      title: item.title,
-      link: item.link,
-      snippet: item.snippet,
-      displayLink: item.displayLink,
-    }));
+    const officialDomains = [
+      '.gov', '.gov.in', '.gov.au', '.gov.uk', '.gc.ca', 
+      'eci.gov.in', 'aec.gov.au', 'elections.ca', 'vote.gov'
+    ];
+
+    return data.items
+      .map((item: any) => ({
+        title: item.title?.replace(/<[^>]*>?/gm, '') || '',
+        link: item.link || '',
+        snippet: item.snippet?.replace(/<[^>]*>?/gm, '') || '',
+        displayLink: item.displayLink || '',
+      }))
+      // Filter out political campaign domains or obviously biased results
+      .filter((item: SearchResult) => {
+        const url = item.link.toLowerCase();
+        const isCampaign = /campaign|donate|candidate|party|republican|democrat|labor|liberal/i.test(url);
+        return !isCampaign;
+      })
+      // Prioritize official domains
+      .sort((a: SearchResult, b: SearchResult) => {
+        const aOfficial = officialDomains.some(d => a.link.includes(d)) ? 1 : 0;
+        const bOfficial = officialDomains.some(d => b.link.includes(d)) ? 1 : 0;
+        return bOfficial - aOfficial;
+      });
   } catch (error) {
-    console.error('Search Grounding: Network error', error);
     return [];
   }
 }

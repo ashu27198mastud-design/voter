@@ -22,7 +22,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
       id: 'welcome-msg',
       text: "Hi! I'm your VotePath Assistant. I can help you understand your personalized election roadmap and civic duties.",
       sender: 'ai',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      grounded: true
   }]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -99,13 +100,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
         setIsLoading(true);
 
         // Fetch AI response
-        const responseText = await askElectionQuestion(validated.query, location || undefined);
+        const aiResponse = await askElectionQuestion(validated.query, location || undefined);
 
         const aiMsg: ChatMessage = {
             id: `ai-${Date.now()}`,
-            text: responseText,
+            text: aiResponse.response,
             sender: 'ai',
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            grounded: aiResponse.grounded
         };
 
         setMessages(prev => [...prev, aiMsg]);
@@ -148,8 +150,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ location }) => {
                   </svg>
                   VotePath Assistant
                 </h3>
-                <span className="text-[10px] text-white/60 font-medium tracking-tight">
-                  Grounded by Gemini · Google Search · Official sources
+                <span className={`text-[10px] font-medium tracking-tight transition-colors duration-300 ${
+                  messages[messages.length - 1]?.grounded !== false 
+                    ? 'text-white/60' 
+                    : 'text-election-amber-300'
+                }`}>
+                  {messages[messages.length - 1]?.grounded !== false 
+                    ? 'Grounded by Gemini · Google Search · Official sources' 
+                    : 'General guidance · Verify with official authority'}
                 </span>
               </div>
               <button 

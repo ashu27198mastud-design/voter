@@ -11,6 +11,7 @@ import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';
 import { isLocationLikeQuery, extractLocationIntent } from '@/lib/locationIntelligence';
 import { getElectionAuthorityGuidance } from '@/lib/electionAuthority';
+import { normalizeAssistantResponse } from '@/lib/responseFormatter';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -62,7 +63,9 @@ export async function POST(req: NextRequest) {
       logger.error('Missing GEMINI_API_KEY');
       const guidance = getElectionAuthorityGuidance(null);
       return NextResponse.json(
-        { response: sanitizeHtml(`
+        { 
+          grounded: false,
+          response: normalizeAssistantResponse(`
 <strong>Direct answer</strong><br />
 I am currently operating in verified data mode.
 <br /><br />
@@ -188,7 +191,10 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
         throw new Error('Empty response from Gemini');
       }
       
-      return NextResponse.json({ response: sanitizeHtml(responseText) });
+      return NextResponse.json({ 
+        grounded: true,
+        response: normalizeAssistantResponse(responseText) 
+      });
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: errorMessage });
@@ -198,7 +204,10 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
           model: 'gemini-1.5-pro'
         });
         const result = await model.generateContent(fullPrompt);
-        return NextResponse.json({ response: sanitizeHtml(result.response.text()) });
+        return NextResponse.json({ 
+          grounded: true,
+          response: normalizeAssistantResponse(result.response.text()) 
+        });
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         logger.error('All Gemini models failed', { error: errorMessage });
@@ -210,7 +219,8 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
 
         if (ctx && ctx.hasOfficialData) {
           return NextResponse.json({
-            response: sanitizeHtml(`
+            grounded: true,
+            response: normalizeAssistantResponse(`
 <strong>Direct answer</strong><br />
 I am providing you with verified registry data for ${ctx.location}:
 <br /><br />
@@ -236,7 +246,8 @@ I am providing you with verified registry data for ${ctx.location}:
         const regionText = location ? `${location.city}, ${location.state}, ${location.country}` : 'your region';
         
         return NextResponse.json({
-          response: sanitizeHtml(`
+          grounded: false,
+          response: normalizeAssistantResponse(`
 <strong>Direct answer</strong><br />
 For ${regionText}, verify live voter status and election dates through the ${guidance.authority}.
 <br /><br />

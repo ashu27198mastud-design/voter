@@ -206,22 +206,25 @@ export function isLocationLikeQuery(input: string): boolean {
 export function extractLocationIntent(input: string): LocationResult | null {
   const cleanInput = input.toLowerCase();
   
-  // Try multi-word cities first (e.g., "new york")
-  const multiWordCities = ['new york', 'new york city', 'new delhi', 'cape town', 'san francisco', 'los angeles'];
-  for (const mwc of multiWordCities) {
-    if (cleanInput.includes(mwc)) {
-      const res = normalizeLocationQuery(mwc);
+  // Try all known city keys and aliases directly in the input
+  const allCityKeys = [...Object.keys(CITY_DATA), ...Object.keys(CITY_ALIASES)];
+  // Sort by length descending to match longest possible names first (e.g. "new york city" before "new york")
+  allCityKeys.sort((a, b) => b.length - a.length);
+
+  for (const key of allCityKeys) {
+    const regex = new RegExp(`\\b${key}\\b`, 'i');
+    if (regex.test(cleanInput)) {
+      const res = normalizeLocationQuery(key);
       if (res) return res;
     }
   }
 
-  // Try country names next to override city if the whole string indicates a country
+  // Try country names next
   for (const country in COUNTRY_CITY_MAP) {
+    if (country === 'in') continue; // Skip 'in' boundary check as it's too common as a preposition
     if (cleanInput.includes(country)) {
-      // Need a boundary check to avoid matching 'in' inside other words
       const regex = new RegExp(`\\b${country}\\b`, 'i');
       if (regex.test(cleanInput)) {
-         // Return the first city for the country as the best proxy, or create a country-level result
          const res = normalizeLocationQuery(country);
          if (res) return res;
       }

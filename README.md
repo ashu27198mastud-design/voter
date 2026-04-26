@@ -205,6 +205,39 @@ The integrated AI assistant obeys 4 core mandates:
 3. **Clarity & Format**: Complex jargon is simplified; timelines are rendered visually.
 4. **Scope Lock**: Refuses any non-civic/election related queries.
 
+## 🌐 Google Services Integrated
+
+VotePath AI is deeply integrated into the Google ecosystem to provide a premium, secure, and highly functional experience. Our architecture leverages Google's state-of-the-art services for intelligence, persistence, and observability:
+
+- **Gemini 1.5 API**: Powers the AI assistant with advanced reasoning and safe, compressed answer generation.
+- **Google Custom Search JSON API**: Provides real-time search grounding for official electoral sources globally.
+- **Google Maps (Places/Geocoder)**: Delivers a frictionless, predictive location-selection experience.
+- **Google Civic Information API**: The primary source for official civic contexts, representatives, and polling data.
+- **Firebase Auth**: Secure, identity-first authentication with Google and Phone (MFA-ready) sign-in.
+- **Firestore**: Scalable persistence for user progress and personalized checklist states.
+- **Firebase Analytics**: Real-time signals for application usage and user journey optimization.
+- **Google Translate**: Built-in widget support for instantaneous multilingual accessibility.
+
+## 🛡️ Safety and Neutrality
+
+To maintain absolute non-partisanship, VotePath AI enforces strict operational boundaries:
+- **Scope Lock**: The AI is programmed to only answer election-process and civic-duty questions.
+- **No Recommendations**: The system will never endorse a candidate, party, or political opinion.
+- **Factual Primacy**: All localized data (polling booths, dates) is grounded by official APIs or search results.
+- **Verification First**: Every AI response includes a link to official verification sources.
+- **Data Privacy**: No user addresses are stored in any database (NIST Aligned).
+
+## 🎬 Demo Script
+
+Experience the VotePath AI journey in under 2 minutes:
+
+1. **Predictive Search**: Type `ind` in the location box; select **New Delhi** from the suggestions.
+2. **Global Context**: Type `syd` and select **Sydney, AU** to see international context switching.
+3. **Personalization**: Select "First-time voter" and "In-person voting" to see your roadmap update.
+4. **AI Assistant**: Open the chat and ask **"voting date"**.
+5. **Neutrality Check**: Ask **"who should I vote for?"** to see the system's non-partisan refusal and official verification redirection.
+6. **Secure Sign-in**: Click "Sign In" and view the integrated Google and Phone Auth (OTP) options.
+
 ## 📄 License
 
 MIT

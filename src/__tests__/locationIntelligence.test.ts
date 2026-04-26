@@ -26,10 +26,27 @@ describe('Location Intelligence', () => {
   });
 
   it('expands country level queries into major cities', () => {
-    const auCities = getPredictiveLocationSuggestions('australia').map(s => s.city);
+    const auCities = getPredictiveLocationSuggestions('aus').map(s => s.city);
     expect(auCities).toEqual(expect.arrayContaining(['Sydney', 'Melbourne']));
 
-    const inCities = getPredictiveLocationSuggestions('india').map(s => s.city);
+    const inCities = getPredictiveLocationSuggestions('ind').map(s => s.city);
     expect(inCities).toEqual(expect.arrayContaining(['New Delhi', 'Mumbai', 'Kolkata']));
+
+    const ukCities = getPredictiveLocationSuggestions('uk').map(s => s.city);
+    expect(ukCities).toEqual(expect.arrayContaining(['London']));
+
+    const caCities = getPredictiveLocationSuggestions('can').map(s => s.city);
+    expect(caCities).toEqual(expect.arrayContaining(['Ottawa', 'Toronto']));
+  });
+
+  it('handles pincodes and multi-match aliases', () => {
+    expect(normalizeLocationQuery('400067')).toMatchObject({ city: 'Mumbai' });
+    expect(normalizeLocationQuery('new')).toMatchObject({ city: 'New Delhi' }); // Prioritize national capital
+  });
+
+  it('extracts location intent from full questions', () => {
+    const { extractLocationIntent } = require('../lib/locationIntelligence');
+    expect(extractLocationIntent('voting date in sydney')).toMatchObject({ city: 'Sydney' });
+    expect(extractLocationIntent('how to register in london')).toMatchObject({ city: 'London' });
   });
 });
