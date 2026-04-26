@@ -18,7 +18,7 @@ const CITY_DATA: Record<string, { city: string; state: string; country: string }
   "ahmedabad": { city: "Ahmedabad", state: "GJ", country: "IN" },
   "jaipur": { city: "Jaipur", state: "RJ", country: "IN" },
   "lucknow": { city: "Lucknow", state: "UP", country: "IN" },
-  "new york": { city: "New York City", state: "NY", country: "US" },
+  "new york": { city: "New York City", state: "New York", country: "US" },
   "san francisco": { city: "San Francisco", state: "CA", country: "US" },
   "los angeles": { city: "Los Angeles", state: "CA", country: "US" },
   "chicago": { city: "Chicago", state: "IL", country: "US" },
@@ -66,6 +66,11 @@ const CITY_ALIASES: Record<string, string> = {
   "sea": "seattle",
   "dc": "washington",
   "jhb": "johannesburg",
+  "kolkate": "kolkata",
+  "calcutta": "kolkata",
+  "bombay": "mumbai",
+  "madras": "chennai",
+  "bangalore": "bengaluru",
 };
 
 const PIN_CODE_MAP: Record<string, string> = {
