@@ -115,7 +115,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   }, []);
 
   const normalizeAndSubmit = useCallback((components: google.maps.GeocoderAddressComponent[] | undefined, formatted: string | undefined) => {
-    let city = '', state = '', country = '', postalCode = '';
+    let city = '', state = '', country = '';
     
     if (components) {
       // Priority-based component extraction
@@ -128,7 +128,6 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       
       state = getShortComp(['administrative_area_level_1']) || '';
       country = getShortComp(['country']) || '';
-      postalCode = getComp(['postal_code']) || '';
     }
 
     // Heuristic fallback if city is still missing
