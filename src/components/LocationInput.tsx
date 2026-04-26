@@ -319,7 +319,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     const thisId = ++reqIdRef.current;
     svc.getPlacePredictions({ 
       input: trimmed, 
-      types: ['address'], // Prioritize full street addresses
+      // Omit types to allow all (addresses, cities, establishments) for broad "Google Search" feel
       sessionToken: sessionTokenRef.current || undefined
     }, (results, status) => {
       if (thisId !== reqIdRef.current) return;
@@ -332,7 +332,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
           secondaryText: r.structured_formatting.secondary_text ?? '',
           isAlias: false,
         }));
-        const merged = [...localPreds, ...googlePreds.filter(g => !localPreds.some(a => a.mainText === g.mainText))].slice(0, MAX_RESULTS);
+        // Live search (Google) is priority, local suggestions are secondary
+        const merged = [...googlePreds, ...localPreds.filter(l => !googlePreds.some(g => g.mainText === l.mainText))].slice(0, MAX_RESULTS);
         cacheWrite(cacheKey, merged);
         openDropdown(merged);
       } else if (localPreds.length > 0) {
