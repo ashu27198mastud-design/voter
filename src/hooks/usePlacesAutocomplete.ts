@@ -29,7 +29,7 @@ interface UsePlacesAutocompleteReturn {
 // ---------------------------------------------------------------------------
 
 const DEBOUNCE_MS = 300;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 1;
 
 // ---------------------------------------------------------------------------
 // Hook
@@ -105,7 +105,7 @@ export function usePlacesAutocomplete(): UsePlacesAutocompleteReturn {
         }
 
         service.getPlacePredictions(
-          { input: trimmed, types: ['geocode'] },
+          { input: trimmed, types: ['address'] },
           (results, status) => {
             setIsLoading(false);
 

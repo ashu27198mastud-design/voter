@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { LocationSchema } from '@/lib/validation';
 import { UserLocation } from '@/types';
-import { normalizeLocationQuery } from '@/lib/locationIntelligence';
+import { normalizeLocationQuery, getPredictiveLocationSuggestions } from '@/lib/locationIntelligence';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,27 +33,28 @@ interface Prediction {
 // ---------------------------------------------------------------------------
 
 const DEBOUNCE_MS = 150; // Faster feedback
-const MIN_CHARS = 2;
+const MIN_CHARS = 1; // Start predicting from the very first character
 const MAX_RESULTS = 6;
 const MAX_CACHE = 50;
 
 function matchLocalIntelligence(raw: string): Prediction[] {
-  const result = normalizeLocationQuery(raw);
-  if (!result) return [];
+  const results = getPredictiveLocationSuggestions(raw);
+  if (results.length === 0) return [];
 
   const sourceLabels = {
     alias: 'Smart match',
     postal: 'PIN code match',
-    heuristic: 'Search fallback',
+    heuristic: 'City match',
+    predictive: 'Regional suggestion'
   };
 
-  return [{
-    placeId: `local::${result.source}`,
-    description: result.formattedAddress,
-    mainText: result.city || result.formattedAddress,
-    secondaryText: sourceLabels[result.source] || 'Smart match',
-    isAlias: true, // We treat local matches like aliases for instant resolution
-  }];
+  return results.map(res => ({
+    placeId: `local::${res.source}::${res.city}`,
+    description: res.formattedAddress,
+    mainText: res.city,
+    secondaryText: sourceLabels[res.source] || 'Smart match',
+    isAlias: true,
+  }));
 }
 
 // ---------------------------------------------------------------------------
@@ -318,7 +319,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     const thisId = ++reqIdRef.current;
     svc.getPlacePredictions({ 
       input: trimmed, 
-      types: ['geocode'],
+      types: ['address'], // Prioritize full street addresses
       sessionToken: sessionTokenRef.current || undefined
     }, (results, status) => {
       if (thisId !== reqIdRef.current) return;
