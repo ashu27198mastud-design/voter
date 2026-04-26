@@ -10,6 +10,7 @@ import { LocationSchema, QuerySchema } from '@/lib/validation';
 import { ElectionContextResult } from '@/types';
 import { searchElectionSources } from '@/services/searchGrounding';
 import { isLocationLikeQuery, extractLocationIntent } from '@/lib/locationIntelligence';
+import { getElectionAuthorityGuidance } from '@/lib/electionAuthority';
 
 async function fetchElectionContext(
   req: NextRequest,
@@ -64,24 +65,25 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       logger.error('Missing GEMINI_API_KEY');
+      const guidance = getElectionAuthorityGuidance(null);
       return NextResponse.json(
-        { response: `
-**Direct answer**
+        { response: sanitizeHtml(`
+<strong>Direct answer</strong><br />
 I am currently operating in verified data mode.
-
-**Key information**
-- Please verify your voter registration, required documents, and official election dates through the relevant election authority.
-- For users in India, please visit the Election Commission of India (ECI) or your State Chief Electoral Officer (CEO) portal.
-- Ensure you have a valid government-issued photo ID (like an EPIC card in India).
-
-**What you should do next**
-1. Check your voter status on the official portal.
-2. Confirm your polling booth location.
-3. Keep your approved photo ID ready before election day.
-
-**Verification note**
-Sources to verify: Election Commission of India / State Chief Electoral Officer
-`.trim() },
+<br /><br />
+<strong>Key information</strong>
+<ul>
+${guidance.keyInfo.map(info => `<li>${info}</li>`).join('')}
+</ul>
+<br />
+<strong>What you should do next</strong>
+<ol>
+${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
+</ol>
+<br />
+<strong>Sources / verification</strong><br />
+<p>${guidance.verificationNote}</p>
+        `.trim()) },
         { status: 200 },
       );
     }
@@ -232,36 +234,27 @@ Please use your personalized roadmap below for a full step-by-step guide.
         }
 
         // Global smart fallback if no specific context exists
-        const region = location ? `${location.city}, ${location.state}, ${location.country}` : 'your region';
+        const guidance = getElectionAuthorityGuidance(location);
+        const regionText = location ? `${location.city}, ${location.state}, ${location.country}` : 'your region';
         
-        let regionalInfo = '';
-        if (location?.country === 'IN') {
-          regionalInfo = `- Visit the Election Commission of India (ECI) or the State CEO portal for ${location.state}.\n- Check your name in the voter roll using your EPIC number.`;
-          if (location.city.includes('Chennai')) regionalInfo += '\n- Official Authority: CEO Tamil Nadu / ECI.';
-          else if (location.city.includes('Delhi')) regionalInfo += '\n- Official Authority: CEO Delhi / ECI.';
-          else if (location.city.includes('Kolkata')) regionalInfo += '\n- Official Authority: CEO West Bengal / ECI.';
-          else if (location.city.includes('Mumbai')) regionalInfo += '\n- Official Authority: CEO Maharashtra / ECI.';
-        } else {
-          regionalInfo = `- Voter registration and polling details vary by local authority.\n- Always verify your status on the official government portal.`;
-        }
-
         return NextResponse.json({
           response: sanitizeHtml(`
-**Direct answer**
-I am currently operating in verified data mode for ${region}.
-
-**Key information**
-${regionalInfo}
-- Ensure you have a valid government-issued photo ID.
-
-**What you should do next**
-1. Search for "Official election authority [Your City/State]"
-2. Visit the voter registration portal for ${region}.
-3. Confirm registration deadlines and polling dates.
-
-**Verification note**
-Sources to verify: Election Commission of India / State Chief Electoral Officer
-          `),
+<strong>Direct answer</strong><br />
+For ${regionText}, verify live voter status and election dates through the ${guidance.authority}.
+<br /><br />
+<strong>Key information</strong>
+<ul>
+${guidance.keyInfo.map(info => `<li>${info}</li>`).join('')}
+</ul>
+<br />
+<strong>What you should do next</strong>
+<ol>
+${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
+</ol>
+<br />
+<strong>Sources / verification</strong><br />
+<p>${guidance.verificationNote}</p>
+          `.trim()),
         });
       }
     }

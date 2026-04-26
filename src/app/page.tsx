@@ -149,7 +149,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span className="font-bold text-gray-900">
-                {location.city || 'Unknown'}{location.state ? `, ${location.state}` : ''}
+                {location.city || 'Unknown'}, {location.state || 'Unknown'}, {location.country || 'Unknown'}
               </span>
               <button 
                 onClick={resetFlow}

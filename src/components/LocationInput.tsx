@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { LocationSchema } from '@/lib/validation';
 import { UserLocation } from '@/types';
-import { normalizeLocationQuery, getPredictiveLocationSuggestions } from '@/lib/locationIntelligence';
+import { normalizeLocationQuery, getPredictiveLocationSuggestions, LocationResult } from '@/lib/locationIntelligence';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,6 +24,7 @@ interface Prediction {
   mainText: string;
   secondaryText: string;
   isAlias: boolean;
+  locationResult?: LocationResult;
 }
 
 // ALIASES and ALIAS_LOCATION_DATA removed in favor of locationIntelligence library
@@ -54,6 +55,7 @@ function matchLocalIntelligence(raw: string): Prediction[] {
     mainText: res.city,
     secondaryText: sourceLabels[res.source] || 'Smart match',
     isAlias: true,
+    locationResult: res,
   }));
 }
 
@@ -131,18 +133,19 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
       country = getShortComp(['country']) || '';
     }
 
-    // Heuristic fallback if city is still missing
-    if (!city && formatted) {
-      const parts = formatted.split(',');
-      // If we have "Street, City, State", parts[1] is city. If just "City, State", parts[0] is city.
-      city = parts.length > 2 ? parts[1].trim() : parts[0].trim();
-    }
+    // Apply local fallback if state or country is missing
+    const localMatch = city ? normalizeLocationQuery(city) : null;
+    const finalCity = localMatch?.city || city || 'Unknown';
+    const finalState = state || localMatch?.state || 'Unknown';
+    const finalCountry = country || localMatch?.country || 'Unknown';
+    const finalFormatted = formatted || localMatch?.formattedAddress || `${finalCity}, ${finalState}, ${finalCountry}`;
+
     try {
       const validated = LocationSchema.parse({
-        city: city || 'Unknown',
-        state: state || 'Unknown',
-        country: country || 'Unknown',
-        formattedAddress: formatted,
+        city: finalCity,
+        state: finalState,
+        country: finalCountry,
+        formattedAddress: finalFormatted,
       });
       onLocationSubmit(validated);
       setError(null);
@@ -211,6 +214,17 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
   const geocodeAndSubmit = useCallback((address: string) => {
     const localMatch = normalizeLocationQuery(address);
     
+    if (localMatch) {
+      // Bypassing geocoder for local intelligence matches
+      onLocationSubmit({
+        city: localMatch.city,
+        state: localMatch.state,
+        country: localMatch.country,
+        formattedAddress: localMatch.formattedAddress
+      });
+      return;
+    }
+
     if (window.google?.maps?.Geocoder) {
       const geocoder = new window.google.maps.Geocoder();
       setIsLoading(true);
@@ -218,25 +232,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
         setIsLoading(false);
         if (status === 'OK' && results?.[0]) {
           normalizeAndSubmit(results[0].address_components, results[0].formatted_address);
-        } else if (localMatch) {
-          // Fallback to local intelligence if Maps fails but we have a match
-          onLocationSubmit({
-            city: localMatch.city,
-            state: localMatch.state,
-            country: localMatch.country,
-            formattedAddress: localMatch.formattedAddress
-          });
         } else {
           setError('Could not verify this location. Please be more specific.');
         }
-      });
-    } else if (localMatch) {
-      // Instant resolution if Maps is not available
-      onLocationSubmit({
-        city: localMatch.city,
-        state: localMatch.state,
-        country: localMatch.country,
-        formattedAddress: localMatch.formattedAddress
       });
     } else {
       // Submit as low-confidence manual entry instead of blocking error
@@ -259,6 +257,16 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
     setInputValue(pred.description);
 
     const localMatch = normalizeLocationQuery(pred.description);
+
+    if (pred.locationResult) {
+      onLocationSubmit({
+        city: pred.locationResult.city,
+        state: pred.locationResult.state,
+        country: pred.locationResult.country,
+        formattedAddress: pred.locationResult.formattedAddress
+      });
+      return;
+    }
 
     // Bypassing geocoder for local intelligence matches
     if (pred.isAlias && localMatch) {
@@ -332,8 +340,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({ onLocationSubmit }
           secondaryText: r.structured_formatting.secondary_text ?? '',
           isAlias: false,
         }));
-        // Live search (Google) is priority, local suggestions are secondary
-        const merged = [...googlePreds, ...localPreds.filter(l => !googlePreds.some(g => g.mainText === l.mainText))].slice(0, MAX_RESULTS);
+        // Local intelligence (predictive) is authoritative and should be priority for known locations
+        const merged = [...localPreds, ...googlePreds.filter(g => !localPreds.some(l => l.mainText === g.mainText))].slice(0, MAX_RESULTS);
         cacheWrite(cacheKey, merged);
         openDropdown(merged);
       } else if (localPreds.length > 0) {

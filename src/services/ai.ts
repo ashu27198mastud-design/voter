@@ -1,6 +1,7 @@
 import { logger } from '../lib/logger';
 import { sanitizeHtml } from '../lib/security';
 import type { UserLocation } from '../types';
+import { getElectionAuthorityGuidance } from '../lib/electionAuthority';
 
 /**
  * Service for interacting with the Gemini AI assistant.
@@ -21,19 +22,24 @@ export async function askElectionQuestion(
       const errorData = await response.json().catch(() => ({}));
       if (errorData.response) return sanitizeHtml(errorData.response);
       
-      return `
-**Direct answer**
-I can still help with election-process guidance for your selected region.
-
-**Key information**
-Please verify your voter registration, required documents, polling booth, and official election dates through the relevant election authority.
-
-**What you should do next**
-Check your voter status, confirm your polling booth, and keep an approved photo ID ready before election day.
-
-**Verification note**
-Live dates, voter status, and polling booth details must be verified with the official election authority.
-`.trim();
+      const guidance = getElectionAuthorityGuidance(location);
+      return sanitizeHtml(`
+<strong>Direct answer</strong><br />
+I can still help with election-process guidance for ${location ? `${location.city}, ${location.state}, ${location.country}` : 'your selected region'}.
+<br /><br />
+<strong>Key information</strong>
+<ul>
+${guidance.keyInfo.map(info => `<li>${info}</li>`).join('')}
+</ul>
+<br />
+<strong>What you should do next</strong>
+<ol>
+${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
+</ol>
+<br />
+<strong>Sources / verification</strong><br />
+<p>${guidance.verificationNote}</p>
+      `.trim());
     }
 
     const data = await response.json();
@@ -42,18 +48,23 @@ Live dates, voter status, and polling booth details must be verified with the of
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get AI response', { query, error: message });
     
-    return `
-**Direct answer**
-I can still help with election-process guidance for your selected region.
-
-**Key information**
-Please verify your voter registration, required documents, polling booth, and official election dates through the relevant election authority.
-
-**What you should do next**
-Check your voter status, confirm your polling booth, and keep an approved photo ID ready before election day.
-
-**Verification note**
-Live dates, voter status, and polling booth details must be verified with the official election authority.
-`.trim();
+    const guidance = getElectionAuthorityGuidance(location);
+    return sanitizeHtml(`
+<strong>Direct answer</strong><br />
+I can still help with election-process guidance for ${location ? `${location.city}, ${location.state}, ${location.country}` : 'your selected region'}.
+<br /><br />
+<strong>Key information</strong>
+<ul>
+${guidance.keyInfo.map(info => `<li>${info}</li>`).join('')}
+</ul>
+<br />
+<strong>What you should do next</strong>
+<ol>
+${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
+</ol>
+<br />
+<strong>Sources / verification</strong><br />
+<p>${guidance.verificationNote}</p>
+    `.trim());
   }
 }

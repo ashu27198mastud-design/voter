@@ -1,4 +1,4 @@
-import { normalizeLocationQuery, isLocationLikeQuery } from '../lib/locationIntelligence';
+import { normalizeLocationQuery, isLocationLikeQuery, getPredictiveLocationSuggestions } from '../lib/locationIntelligence';
 
 describe('Location Intelligence', () => {
   it('normalizes common misspellings and aliases', () => {
@@ -17,5 +17,19 @@ describe('Location Intelligence', () => {
 
   it('returns null for unknown locations', () => {
     expect(normalizeLocationQuery('unknown_place')).toBeNull();
+  });
+
+  it('normalizes major international and national cities', () => {
+    expect(normalizeLocationQuery('hyderabad')).toMatchObject({ city: 'Hyderabad', state: 'TG', country: 'IN' });
+    expect(normalizeLocationQuery('chennai')).toMatchObject({ city: 'Chennai', state: 'TN', country: 'IN' });
+    expect(normalizeLocationQuery('sydney')).toMatchObject({ city: 'Sydney', state: 'NSW', country: 'AU' });
+  });
+
+  it('expands country level queries into major cities', () => {
+    const auCities = getPredictiveLocationSuggestions('australia').map(s => s.city);
+    expect(auCities).toEqual(expect.arrayContaining(['Sydney', 'Melbourne']));
+
+    const inCities = getPredictiveLocationSuggestions('india').map(s => s.city);
+    expect(inCities).toEqual(expect.arrayContaining(['New Delhi', 'Mumbai', 'Kolkata']));
   });
 });
