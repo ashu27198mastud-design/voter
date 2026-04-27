@@ -8,7 +8,7 @@ jest.mock('isomorphic-dompurify', () => ({
 describe('Response Formatter Advanced Suite', () => {
   it('handles empty or null inputs gracefully', () => {
     expect(normalizeAssistantResponse('')).toBe('');
-    expect(normalizeAssistantResponse(null as any)).toBe('');
+    expect(normalizeAssistantResponse(null as unknown as string)).toBe('');
   });
 
   it('converts markdown bold headers to strong tags and adds breaks', () => {
