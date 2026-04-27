@@ -11,7 +11,9 @@ jest.mock('../lib/rateLimit', () => ({
   checkRateLimit: jest.fn().mockReturnValue({ allowed: true }),
 }));
 jest.mock('next/headers', () => ({
-  headers: jest.fn().mockResolvedValue(new Map([['x-forwarded-for', '127.0.0.1']])),
+  headers: jest.fn().mockResolvedValue({
+    get: (key: string) => (key === 'x-forwarded-for' ? '127.0.0.1' : null)
+  }),
 }));
 jest.mock('../lib/security', () => ({
   sanitizeHtml: jest.fn((html) => html),

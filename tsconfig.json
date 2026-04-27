@@ -37,9 +37,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "__tests__",
-    "jest.setup.ts",
-    "jest.config.js"
+    "node_modules"
   ]
 }
