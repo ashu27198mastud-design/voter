@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { POST } from '../app/api/chat/route';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 jest.mock('isomorphic-dompurify', () => ({
   sanitize: jest.fn((text: string) => text),
@@ -12,7 +13,7 @@ jest.mock('@google/generative-ai', () => ({
     getGenerativeModel: jest.fn().mockImplementation(() => ({
       generateContent: jest.fn().mockResolvedValue({
         response: {
-          text: () => '**Direct answer** Refusal. I cannot suggest who to vote for. Sources / verification: Non-partisan policy.'
+          text: () => '<strong>Direct answer</strong> Refusal. I cannot suggest who to vote for. <br /><br /> <strong>Sources / verification</strong><br /> Non-partisan policy.'
         }
       })
     }))
@@ -30,6 +31,10 @@ jest.mock('next/headers', () => ({
 }));
 
 describe('Chat API Behavior', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('refuses political questions with non-partisan policy', async () => {
     const req = new NextRequest('http://localhost/api/chat', {
       method: 'POST',
@@ -44,13 +49,13 @@ describe('Chat API Behavior', () => {
   });
 
   it('removes technical leakage from Gemini responses', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    GoogleGenerativeAI.mockImplementationOnce(() => ({
+    const mockGenerateContent = jest.fn().mockResolvedValue({
+      response: { text: () => 'AI Service Error: 503 failed' }
+    });
+    
+    (GoogleGenerativeAI as jest.Mock).mockImplementationOnce(() => ({
       getGenerativeModel: () => ({
-        generateContent: () => ({
-          response: { text: () => 'AI Service Error: 503 failed' }
-        })
+        generateContent: mockGenerateContent
       })
     }));
 
@@ -68,9 +73,7 @@ describe('Chat API Behavior', () => {
 
   it('mentions Australian Electoral Commission for AU fallback', async () => {
     // Force a failure to trigger fallback
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    GoogleGenerativeAI.mockImplementationOnce(() => ({
+    (GoogleGenerativeAI as jest.Mock).mockImplementationOnce(() => ({
       getGenerativeModel: () => ({
         generateContent: () => { throw new Error('API Down'); }
       })
@@ -91,9 +94,7 @@ describe('Chat API Behavior', () => {
   });
 
   it('mentions Election Commission of India for IN fallback', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    GoogleGenerativeAI.mockImplementationOnce(() => ({
+    (GoogleGenerativeAI as jest.Mock).mockImplementationOnce(() => ({
       getGenerativeModel: () => ({
         generateContent: () => { throw new Error('API Down'); }
       })
