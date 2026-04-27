@@ -24,7 +24,7 @@ describe('Global Accessibility WCAG Audit Suite', () => {
 
   it('proves PhoneAuth component meets WCAG standards', async () => {
     const { container } = render(
-      <PhoneAuth onSuccess={jest.fn()} onCancel={jest.fn()} />
+      <PhoneAuth onSuccess={() => {}} onCancel={() => {}} />
     );
     
     // Ensure render
@@ -35,11 +35,8 @@ describe('Global Accessibility WCAG Audit Suite', () => {
   });
 
   it('proves MFAEnrollmentModal component meets WCAG standards', async () => {
-    // Mock user
-    const mockUser = { uid: '123' } as any;
-    
     const { container } = render(
-      <MFAEnrollmentModal user={mockUser} onSuccess={jest.fn()} onCancel={jest.fn()} />
+      <MFAEnrollmentModal onSuccess={() => {}} onCancel={() => {}} />
     );
     
     const results = await axe(container);
@@ -47,10 +44,8 @@ describe('Global Accessibility WCAG Audit Suite', () => {
   });
 
   it('proves MFASettings component meets WCAG standards', async () => {
-    const mockUser = { uid: '123' } as any;
-    
     const { container } = render(
-      <MFASettings user={mockUser} onEnroll={() => {}} onUnenroll={() => {}} />
+      <MFASettings />
     );
     
     const results = await axe(container);
