@@ -23,7 +23,9 @@ export async function voterInfoQuery(address: string, electionId?: string) {
       url.searchParams.append('electionId', electionId);
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      next: { revalidate: 3600 } // Deep caching: 1 hour revalidation
+    });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       logger.error('Error fetching voter info', { error: errorData || response.statusText, address });
@@ -62,7 +64,9 @@ export async function representativesInfoByAddress(
       roles.forEach(role => url.searchParams.append('roles', role));
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      next: { revalidate: 3600 } // Deep caching: 1 hour revalidation
+    });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       logger.error('Error fetching representative info', { error: errorData || response.statusText, address });

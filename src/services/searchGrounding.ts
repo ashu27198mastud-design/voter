@@ -56,7 +56,7 @@ export async function searchElectionSources(
 
   try {
     const response = await fetch(url.toString(), {
-      cache: 'no-store'
+      next: { revalidate: 3600 } // Deep caching: 1 hour revalidation for efficiency and budget control
     });
 
     if (!response.ok) {
