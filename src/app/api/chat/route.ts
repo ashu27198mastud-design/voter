@@ -55,6 +55,9 @@ Structure your response exactly as follows using ONLY safe HTML (<strong>, <p>, 
 [Verbatim note or source links]
 `;
 
+const responseCache = new Map<string, { timestamp: number; data: unknown }>();
+const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -134,6 +137,14 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
       }
     }
 
+    // Deep caching: Request Coalescing
+    const cacheKey = `${query.trim().toLowerCase()}_${location?.city || ''}_${location?.country || ''}`;
+    const cachedResult = responseCache.get(cacheKey);
+    if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL_MS) {
+      logger.info('Serving chat response from deep cache', { cacheKey });
+      return NextResponse.json(cachedResult.data);
+    }
+
     let grounding = '';
     if (location) {
       const ctx = await fetchElectionContext(
@@ -190,10 +201,13 @@ ${guidance.nextSteps.map(step => `<li>${step}</li>`).join('')}
         throw new Error('Empty response from Gemini');
       }
       
-      return NextResponse.json({ 
+      const responseData = { 
         grounded: true,
         response: normalizeAssistantResponse(responseText) 
-      });
+      };
+      
+      responseCache.set(cacheKey, { timestamp: Date.now(), data: responseData });
+      return NextResponse.json(responseData);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       logger.warn('Gemini 1.5 Flash failed, attempting Pro fallback', { error: errorMessage });
