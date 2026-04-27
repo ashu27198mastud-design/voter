@@ -4,7 +4,9 @@ import { PhoneAuth } from '../components/auth/PhoneAuth';
 
 // Mock the auth services
 jest.mock('../lib/auth', () => ({
-  initRecaptcha: jest.fn(),
+  initRecaptcha: jest.fn().mockReturnValue({
+    verify: jest.fn().mockResolvedValue('token'),
+  }),
   sendPhoneOtp: jest.fn(),
 }));
 

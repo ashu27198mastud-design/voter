@@ -82,8 +82,8 @@ export async function searchElectionSources(
       }))
       // Filter out political campaign domains or obviously biased results
       .filter((item: SearchResult) => {
-        const url = item.link.toLowerCase();
-        const isCampaign = /campaign|donate|candidate|party|republican|democrat|labor|liberal/i.test(url);
+        const linkUrl = item.link.toLowerCase();
+        const isCampaign = /campaign|donate|candidate|party|republican|democrat|labor|liberal/i.test(linkUrl);
         return !isCampaign;
       })
       // Prioritize official domains
