@@ -38,8 +38,8 @@ describe('civicApi utility', () => {
       const { queryVoterInfo } = await import('@/utils/civicApi');
       const result = await queryVoterInfo('123 Main St', '2000');
       expect(result).toEqual(mockData);
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('electionId=2000'));
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('key=test-api-key'));
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('electionId=2000'), expect.anything());
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('key=test-api-key'), expect.anything());
     });
 
     it('returns null on API error response', async () => {
@@ -91,8 +91,8 @@ describe('civicApi utility', () => {
       const { queryRepresentatives } = await import('@/utils/civicApi');
       const result = await queryRepresentatives('123 Main St', ['administrativeArea1'], ['legislatorUpperBody']);
       expect(result).toEqual(mockData);
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('levels=administrativeArea1'));
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('roles=legislatorUpperBody'));
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('levels=administrativeArea1'), expect.anything());
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('roles=legislatorUpperBody'), expect.anything());
     });
 
     it('returns null on API error', async () => {
